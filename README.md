@@ -14,7 +14,7 @@ The buildpack will do the following:
   * Runs `<APPLICATION_ROOT>/mvnw -Dmaven.test.skip=true package` to build the application
 * If `<APPLICATION_ROOT>/mvnw` does not exist
   * Contributes Maven to a layer with all commands on `$PATH`
-  * Runs `<MAVEN_ROOT>/mvn -Dmaven.test.skip=true package` to build the application
+  * Runs `<MAVEN_ROOT>/bin/mvn -Dmaven.test.skip=true package` to build the application
 * Removes the source code in `<APPLICATION_ROOT>`
 * Expands `<APPLICATION_ROOT>/target/*.[jw]ar` to `<APPLICATION_ROOT>`
 
