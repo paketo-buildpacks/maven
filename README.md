@@ -1,4 +1,4 @@
-# `paketo-buildpacks/maven`
+# `gcr.io/paketo-buildpacks/maven`
 The Paketo Maven Buildpack is a Cloud Native Buildpack that builds Maven-based applications from source.
 
 ## Behavior
@@ -21,9 +21,9 @@ The buildpack will do the following:
 ## Configuration
 | Environment Variable | Description
 | -------------------- | -----------
-| `$BP_BUILD_ARGUMENTS` | Configure the arguments to pass to Maven.  Defaults to `-Dmaven.test.skip=true package`.
-| `$BP_BUILT_MODULE` | Configure the module to find application artifact in.  Defaults to the root module (empty).
-| `$BP_BUILT_ARTIFACT` | Configure the built application artifact explicitly.  Supersedes `$BP_BUILT_MODULE`  Defaults to `target/*.[jw]ar`.
+| `$BP_MAVEN_BUILD_ARGUMENTS` | Configure the arguments to pass to Maven.  Defaults to `-Dmaven.test.skip=true package`.
+| `$BP_MAVEN_BUILT_MODULE` | Configure the module to find application artifact in.  Defaults to the root module (empty).
+| `$BP_MAVEN_BUILT_ARTIFACT` | Configure the built application artifact explicitly.  Supersedes `$BP_MAVEN_BUILT_MODULE`  Defaults to `target/*.[jw]ar`.
 
 ## License
 This buildpack is released under version 2.0 of the [Apache License][a].

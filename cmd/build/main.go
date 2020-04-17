@@ -16,5 +16,14 @@
 
 package main
 
+import (
+	"os"
+
+	"github.com/paketo-buildpacks/libpak"
+	"github.com/paketo-buildpacks/libpak/bard"
+	"github.com/paketo-buildpacks/maven/maven"
+)
+
 func main() {
+	libpak.Build(maven.Build{Logger: bard.NewLogger(os.Stdout)})
 }

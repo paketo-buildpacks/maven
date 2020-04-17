@@ -14,13 +14,21 @@
  * limitations under the License.
  */
 
-package main
+package maven_test
 
 import (
-	"github.com/paketo-buildpacks/libpak"
-	"github.com/paketo-buildpacks/maven/maven"
+	"testing"
+
+	"github.com/sclevine/spec"
+	"github.com/sclevine/spec/report"
 )
 
-func main() {
-	libpak.Detect(maven.Detect{})
+func TestUnit(t *testing.T) {
+	suite := spec.New("maven", spec.Report(report.Terminal{}))
+	suite("Application", testApplication)
+	// suite("Build", testBuild)
+	suite("Cache", testCache)
+	suite("Detect", testDetect)
+	suite("Distribution", testDistribution)
+	suite.Run(t)
 }
