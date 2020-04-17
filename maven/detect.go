@@ -26,7 +26,7 @@ import (
 
 type Detect struct{}
 
-func (d Detect) Detect(context libcnb.DetectContext) (libcnb.DetectResult, error) {
+func (Detect) Detect(context libcnb.DetectContext) (libcnb.DetectResult, error) {
 	file := filepath.Join(context.Application.Path, "pom.xml")
 	_, err := os.Stat(file)
 	if os.IsNotExist(err) {
