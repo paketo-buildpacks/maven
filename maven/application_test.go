@@ -26,6 +26,7 @@ import (
 
 	"github.com/buildpacks/libcnb"
 	. "github.com/onsi/gomega"
+	"github.com/paketo-buildpacks/libjvm"
 	"github.com/paketo-buildpacks/libpak/bard"
 	"github.com/paketo-buildpacks/libpak/effect"
 	"github.com/paketo-buildpacks/libpak/effect/mocks"
@@ -38,9 +39,11 @@ func testApplication(t *testing.T, context spec.G, it spec.S) {
 	var (
 		Expect = NewWithT(t).Expect
 
+		cachePath   string
 		ctx         libcnb.BuildContext
 		application maven.Application
 		executor    *mocks.Executor
+		plan        *libcnb.BuildpackPlan
 	)
 
 	it.Before(func() {
@@ -52,7 +55,12 @@ func testApplication(t *testing.T, context spec.G, it spec.S) {
 		ctx.Layers.Path, err = ioutil.TempDir("", "application-layers")
 		Expect(err).NotTo(HaveOccurred())
 
-		application, err = maven.NewApplication(ctx.Application.Path, "test-command")
+		cachePath, err = ioutil.TempDir("", "application-cache")
+		Expect(err).NotTo(HaveOccurred())
+
+		plan = &libcnb.BuildpackPlan{}
+
+		application, err = maven.NewApplication(ctx.Application.Path, cachePath, "test-command", plan)
 		Expect(err).NotTo(HaveOccurred())
 
 		executor = &mocks.Executor{}
@@ -62,6 +70,7 @@ func testApplication(t *testing.T, context spec.G, it spec.S) {
 	it.After(func() {
 		Expect(os.RemoveAll(ctx.Application.Path)).To(Succeed())
 		Expect(os.RemoveAll(ctx.Layers.Path)).To(Succeed())
+		Expect(os.RemoveAll(cachePath)).To(Succeed())
 	})
 
 	it("contributes layer", func() {
@@ -74,6 +83,7 @@ func testApplication(t *testing.T, context spec.G, it spec.S) {
 		Expect(err).NotTo(HaveOccurred())
 		Expect(in.Close()).To(Succeed())
 		Expect(out.Close()).To(Succeed())
+		Expect(ioutil.WriteFile(filepath.Join(cachePath, "test-file-1.1.1.jar"), []byte{}, 0644)).To(Succeed())
 
 		application.Logger = bard.NewLogger(ioutil.Discard)
 		executor.On("Execute", mock.Anything).Return(nil)
@@ -96,6 +106,24 @@ func testApplication(t *testing.T, context spec.G, it spec.S) {
 		Expect(filepath.Join(layer.Path, "application.zip")).To(BeARegularFile())
 		Expect(filepath.Join(ctx.Application.Path, "stub-application.jar")).NotTo(BeAnExistingFile())
 		Expect(filepath.Join(ctx.Application.Path, "fixture-marker")).To(BeARegularFile())
+
+		Expect(plan).To(Equal(&libcnb.BuildpackPlan{
+			Entries: []libcnb.BuildpackPlanEntry{
+				{
+					Name: "maven",
+					Metadata: map[string]interface{}{
+						"dependencies": []libjvm.MavenJAR{
+							{
+								Name:    "test-file",
+								Version: "1.1.1",
+								SHA256:  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+							},
+						},
+					},
+				},
+			},
+		}))
+
 	})
 
 	context("ResolveArguments", func() {
