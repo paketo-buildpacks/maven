@@ -3,7 +3,7 @@ module github.com/paketo-buildpacks/maven
 go 1.14
 
 require (
-	github.com/buildpacks/libcnb v1.7.0
+	github.com/buildpacks/libcnb v1.8.0
 	github.com/magiconair/properties v1.8.1
 	github.com/mattn/go-shellwords v1.0.10
 	github.com/onsi/gomega v1.9.0
