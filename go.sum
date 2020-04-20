@@ -49,6 +49,8 @@ github.com/paketo-buildpacks/libjvm v1.10.3 h1:PGakl1hLEBp3jjDTMp8znJ15LvVd8oa/C
 github.com/paketo-buildpacks/libjvm v1.10.3/go.mod h1:UV+oPgFdbhFAwd6jP2isS0vKl5QyjiocTXB3vPr3JkI=
 github.com/paketo-buildpacks/libpak v1.27.4 h1:H9EJrB8V8n7/2K8DPCJKpaaxtVI55qMjfu4+3FqyNpE=
 github.com/paketo-buildpacks/libpak v1.27.4/go.mod h1:EjwwpOrCfTANLOIP8QINbpnHUvKNA91XHpn3YG1w/l8=
+github.com/paketo-buildpacks/libpak v1.27.5 h1:gcYvzepgfYjl/Ae7lKqZGasVklC1y9cNAGF4AMPntJk=
+github.com/paketo-buildpacks/libpak v1.27.5/go.mod h1:EjwwpOrCfTANLOIP8QINbpnHUvKNA91XHpn3YG1w/l8=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rakyll/statik v0.1.7 h1:OF3QCZUuyPxuGEP7B4ypUa7sB/iHtqOTDYZXGM8KOdQ=
