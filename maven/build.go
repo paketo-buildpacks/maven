@@ -32,7 +32,7 @@ type Build struct {
 
 func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	b.Logger.Title(context.Buildpack)
-	result := libcnb.BuildResult{}
+	result := libcnb.NewBuildResult()
 
 	dr, err := libpak.NewDependencyResolver(context)
 	if err != nil {
@@ -49,7 +49,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 			return libcnb.BuildResult{}, fmt.Errorf("unable to find dependency\n%w", err)
 		}
 
-		d := NewDistribution(dep, dc, &context.Plan)
+		d := NewDistribution(dep, dc, result.Plan)
 		d.Logger = b.Logger
 		result.Layers = append(result.Layers, d)
 
@@ -65,7 +65,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	c.Logger = b.Logger
 	result.Layers = append(result.Layers, c)
 
-	a, err := NewApplication(context.Application.Path, command)
+	a, err := NewApplication(context.Application.Path, c.Path, command, result.Plan)
 	if err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to create application layer\n%w", err)
 	}
