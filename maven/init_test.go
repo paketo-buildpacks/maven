@@ -25,9 +25,7 @@ import (
 
 func TestUnit(t *testing.T) {
 	suite := spec.New("maven", spec.Report(report.Terminal{}))
-	suite("Application", testApplication)
 	suite("Build", testBuild)
-	suite("Cache", testCache)
 	suite("Detect", testDetect)
 	suite("Distribution", testDistribution)
 	suite.Run(t)
