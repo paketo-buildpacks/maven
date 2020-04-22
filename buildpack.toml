@@ -15,9 +15,10 @@
 api = "0.2"
 
 [buildpack]
-id      = "paketo-buildpacks/maven"
-name    = "Paketo Maven Buildpack"
-version = "{{.version}}"
+id       = "paketo-buildpacks/maven"
+name     = "Paketo Maven Buildpack"
+version  = "{{.version}}"
+homepage = "https://github.com/paketo-buildpacks/maven"
 
 [[stacks]]
 id = "io.buildpacks.stacks.bionic"
