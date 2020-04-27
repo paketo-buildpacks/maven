@@ -24,6 +24,7 @@ The buildpack will do the following:
 | `$BP_MAVEN_BUILD_ARGUMENTS` | Configure the arguments to pass to Maven.  Defaults to `-Dmaven.test.skip=true package`.
 | `$BP_MAVEN_BUILT_MODULE` | Configure the module to find application artifact in.  Defaults to the root module (empty).
 | `$BP_MAVEN_BUILT_ARTIFACT` | Configure the built application artifact explicitly.  Supersedes `$BP_MAVEN_BUILT_MODULE`  Defaults to `target/*.[jw]ar`.
+| `$BP_MAVEN_SETTINGS` | Configure the contents of a `settings.xml` file to be used at build time.  Defaults to (empty).
 
 ## License
 This buildpack is released under version 2.0 of the [Apache License][a].

@@ -34,6 +34,8 @@ type Build struct {
 
 func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	b.Logger.Title(context.Buildpack)
+	b.Logger.Body(bard.FormatUserConfig("BP_MAVEN_SETTINGS", "the contents of a settings.xml file", "<none>"))
+
 	result := libcnb.NewBuildResult()
 
 	dr, err := libpak.NewDependencyResolver(context)
@@ -69,7 +71,16 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	c.Logger = b.Logger
 	result.Layers = append(result.Layers, c)
 
-	arg := libbs.NewArgumentResolver("BP_MAVEN_BUILD_ARGUMENTS", []string{"-Dmaven.test.skip=true", "package"}, b.Logger)
+	var args []string
+	if t, ok := os.LookupEnv("BP_MAVEN_SETTINGS"); ok {
+		s := NewSettings(t, context.Layers.Path)
+		s.Logger = b.Logger
+		result.Layers = append(result.Layers, s)
+		args = append(args, fmt.Sprintf("--settings=%s", s.Path))
+	}
+	args = append(args, "-Dmaven.test.skip=true", "package")
+
+	arg := libbs.NewArgumentResolver("BP_MAVEN_BUILD_ARGUMENTS", args, b.Logger)
 
 	art := libbs.NewArtifactResolver("BP_MAVEN_BUILT_ARTIFACT", "BP_MAVEN_BUILT_MODULE", filepath.Join("target", "*.[jw]ar"), b.Logger)
 	art.InterestingFileDetector = libbs.JARInterestingFileDetector{}

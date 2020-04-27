@@ -24,12 +24,11 @@ import (
 
 	"github.com/buildpacks/libcnb"
 	. "github.com/onsi/gomega"
-	"github.com/paketo-buildpacks/libpak"
 	"github.com/paketo-buildpacks/maven/maven"
 	"github.com/sclevine/spec"
 )
 
-func testDistribution(t *testing.T, context spec.G, it spec.S) {
+func testSettings(t *testing.T, context spec.G, it spec.S) {
 	var (
 		Expect = NewWithT(t).Expect
 
@@ -39,7 +38,7 @@ func testDistribution(t *testing.T, context spec.G, it spec.S) {
 	it.Before(func() {
 		var err error
 
-		ctx.Layers.Path, err = ioutil.TempDir("", "distribution-layers")
+		ctx.Layers.Path, err = ioutil.TempDir("", "settings-layers")
 		Expect(err).NotTo(HaveOccurred())
 	})
 
@@ -48,21 +47,16 @@ func testDistribution(t *testing.T, context spec.G, it spec.S) {
 	})
 
 	it("contributes distribution", func() {
-		dep := libpak.BuildpackDependency{
-			URI:    "https://localhost/stub-maven-distribution.tar.gz",
-			SHA256: "31ba45356e22aff670af88170f43ff82328e6f323c3ce891ba422bd1031e3308",
-		}
-		dc := libpak.DependencyCache{CachePath: "testdata"}
-
-		d := maven.NewDistribution(dep, dc, &libcnb.BuildpackPlan{})
-		layer, err := ctx.Layers.Layer("test-layer")
+		s := maven.NewSettings("test-value", ctx.Layers.Path)
+		layer, err := ctx.Layers.Layer("settings")
 		Expect(err).NotTo(HaveOccurred())
 
-		layer, err = d.Contribute(layer)
+		layer, err = s.Contribute(layer)
 		Expect(err).NotTo(HaveOccurred())
 
 		Expect(layer.Cache).To(BeTrue())
-		Expect(filepath.Join(layer.Path, "fixture-marker")).To(BeARegularFile())
+		Expect(ioutil.ReadFile(filepath.Join(layer.Path, "settings.xml"))).To(Equal([]byte("test-value")))
 	})
 
 }
+
