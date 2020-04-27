@@ -17,6 +17,7 @@
 package maven_test
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -84,6 +85,33 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(result.Layers[1].Name()).To(Equal("cache"))
 		Expect(result.Layers[2].Name()).To(Equal("application"))
 		Expect(result.Layers[2].(libbs.Application).Command).To(Equal(filepath.Join(ctx.Layers.Path, "maven", "bin", "mvn")))
+	})
+
+	context("BP_MAVEN_SETTINGS", func() {
+		it.Before(func() {
+			Expect(os.Setenv("BP_MAVEN_SETTINGS", "test-value")).To(Succeed())
+		})
+
+		it.After(func() {
+			Expect(os.Unsetenv("BP_MAVEN_SETTINGS")).To(Succeed())
+		})
+
+		it("contributes settings.xml", func() {
+			Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
+			ctx.StackID = "test-stack-id"
+
+			result, err := maven.Build{}.Build(ctx)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(result.Layers).To(HaveLen(3))
+			Expect(result.Layers[1].Name()).To(Equal("settings"))
+			Expect(result.Layers[2].(libbs.Application).ArgumentResolver.DefaultArguments).To(Equal([]string{
+				fmt.Sprintf("--settings=%s", filepath.Join(ctx.Layers.Path, "settings", "settings.xml")),
+				"-Dmaven.test.skip=true",
+				"package",
+			}))
+
+		})
 	})
 
 }
