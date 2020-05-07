@@ -43,6 +43,12 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		ctx.Application.Path, err = ioutil.TempDir("", "build-application")
 		Expect(err).NotTo(HaveOccurred())
 
+		ctx.Buildpack.Metadata = map[string]interface{}{
+			"configurations": []map[string]interface{}{
+				{"name": "BP_MAVEN_BUILD_ARGUMENTS", "default": "test-argument"},
+			},
+		}
+
 		ctx.Layers.Path, err = ioutil.TempDir("", "build-layers")
 		Expect(err).NotTo(HaveOccurred())
 	})
@@ -63,16 +69,15 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(result.Layers[0].Name()).To(Equal("cache"))
 		Expect(result.Layers[1].Name()).To(Equal("application"))
 		Expect(result.Layers[1].(libbs.Application).Command).To(Equal(filepath.Join(ctx.Application.Path, "mvnw")))
+		Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{"test-argument"}))
 	})
 
 	it("contributes distribution", func() {
-		ctx.Buildpack.Metadata = map[string]interface{}{
-			"dependencies": []map[string]interface{}{
-				{
-					"id":      "maven",
-					"version": "1.1.1",
-					"stacks":  []interface{}{"test-stack-id"},
-				},
+		ctx.Buildpack.Metadata["dependencies"] = []map[string]interface{}{
+			{
+				"id":      "maven",
+				"version": "1.1.1",
+				"stacks":  []interface{}{"test-stack-id"},
 			},
 		}
 		ctx.StackID = "test-stack-id"
@@ -85,6 +90,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(result.Layers[1].Name()).To(Equal("cache"))
 		Expect(result.Layers[2].Name()).To(Equal("application"))
 		Expect(result.Layers[2].(libbs.Application).Command).To(Equal(filepath.Join(ctx.Layers.Path, "maven", "bin", "mvn")))
+		Expect(result.Layers[2].(libbs.Application).Arguments).To(Equal([]string{"test-argument"}))
 	})
 
 	context("BP_MAVEN_SETTINGS", func() {
@@ -105,10 +111,9 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 
 			Expect(result.Layers).To(HaveLen(3))
 			Expect(result.Layers[1].Name()).To(Equal("settings"))
-			Expect(result.Layers[2].(libbs.Application).ArgumentResolver.DefaultArguments).To(Equal([]string{
+			Expect(result.Layers[2].(libbs.Application).Arguments).To(Equal([]string{
 				fmt.Sprintf("--settings=%s", filepath.Join(ctx.Layers.Path, "settings", "settings.xml")),
-				"-Dmaven.test.skip=true",
-				"package",
+				"test-argument",
 			}))
 
 		})

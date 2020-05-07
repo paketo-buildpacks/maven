@@ -34,9 +34,12 @@ type Build struct {
 
 func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	b.Logger.Title(context.Buildpack)
-	b.Logger.Body(bard.FormatUserConfig("BP_MAVEN_SETTINGS", "the contents of a settings.xml file", "<none>"))
-
 	result := libcnb.NewBuildResult()
+
+	cr, err := libpak.NewConfigurationResolver(context.Buildpack, &b.Logger)
+	if err != nil {
+		return libcnb.BuildResult{}, fmt.Errorf("unable to create configuration resolver\n%w", err)
+	}
 
 	dr, err := libpak.NewDependencyResolver(context)
 	if err != nil {
@@ -71,21 +74,26 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	c.Logger = b.Logger
 	result.Layers = append(result.Layers, c)
 
-	var args []string
-	if t, ok := os.LookupEnv("BP_MAVEN_SETTINGS"); ok {
+	args, err := libbs.ResolveArguments("BP_MAVEN_BUILD_ARGUMENTS", cr)
+	if err != nil {
+		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve build arguments\n%w", err)
+	}
+
+	if t, ok := cr.Resolve("BP_MAVEN_SETTINGS"); ok {
 		s := NewSettings(t, context.Layers.Path)
 		s.Logger = b.Logger
 		result.Layers = append(result.Layers, s)
-		args = append(args, fmt.Sprintf("--settings=%s", s.Path))
+		args = append([]string{fmt.Sprintf("--settings=%s", s.Path)}, args...)
 	}
-	args = append(args, "-Dmaven.test.skip=true", "package")
 
-	arg := libbs.NewArgumentResolver("BP_MAVEN_BUILD_ARGUMENTS", args, b.Logger)
+	art := libbs.ArtifactResolver{
+		ArtifactConfigurationKey: "BP_MAVEN_BUILT_ARTIFACT",
+		ConfigurationResolver:    cr,
+		ModuleConfigurationKey:   "BP_MAVEN_BUILT_MODULE",
+		InterestingFileDetector:  libbs.JARInterestingFileDetector{},
+	}
 
-	art := libbs.NewArtifactResolver("BP_MAVEN_BUILT_ARTIFACT", "BP_MAVEN_BUILT_MODULE", filepath.Join("target", "*.[jw]ar"), b.Logger)
-	art.InterestingFileDetector = libbs.JARInterestingFileDetector{}
-
-	a, err := libbs.NewApplication(context.Application.Path, arg, art, c, command, result.Plan)
+	a, err := libbs.NewApplication(context.Application.Path, args, art, c, command, result.Plan)
 	if err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to create application layer\n%w", err)
 	}

@@ -26,6 +26,24 @@ id = "io.buildpacks.stacks.bionic"
 [[stacks]]
 id = "org.cloudfoundry.stacks.cflinuxfs3"
 
+[[metadata.configurations]]
+name        = "BP_MAVEN_BUILD_ARGUMENTS"
+description = "the arguments to pass to Maven"
+default     = "-Dmaven.test.skip=true package"
+
+[[metadata.configurations]]
+name        = "BP_MAVEN_BUILT_ARTIFACT"
+description = "the built application artifact explicitly.  Supersedes $BP_MAVEN_BUILT_MODULE"
+default     = "target/*.[jw]ar"
+
+[[metadata.configurations]]
+name        = "BP_MAVEN_BUILT_MODULE"
+description = "the module to find application artifact in"
+
+[[metadata.configurations]]
+name        = "BP_MAVEN_SETTINGS"
+description = " the contents of a `settings.xml` file to be used at build time"
+
 [[metadata.dependencies]]
 id      = "maven"
 name    = "Apache Maven"
