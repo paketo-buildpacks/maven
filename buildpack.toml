@@ -40,10 +40,6 @@ default     = "target/*.[jw]ar"
 name        = "BP_MAVEN_BUILT_MODULE"
 description = "the module to find application artifact in"
 
-[[metadata.configurations]]
-name        = "BP_MAVEN_SETTINGS"
-description = " the contents of a `settings.xml` file to be used at build time"
-
 [[metadata.dependencies]]
 id      = "maven"
 name    = "Apache Maven"

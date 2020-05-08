@@ -78,12 +78,13 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	if err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve build arguments\n%w", err)
 	}
-
-	if t, ok := cr.Resolve("BP_MAVEN_SETTINGS"); ok {
-		s := NewSettings(t, context.Layers.Path)
-		s.Logger = b.Logger
-		result.Layers = append(result.Layers, s)
-		args = append([]string{fmt.Sprintf("--settings=%s", s.Path)}, args...)
+	br := libpak.BindingResolver{Bindings: context.Platform.Bindings}
+	if binding, ok, err := br.Resolve("maven", ""); err != nil {
+		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve binding\n%w", err)
+	} else if ok {
+		if path, ok := binding.SecretFilePath("settings.xml"); ok {
+			args = append([]string{fmt.Sprintf("--settings=%s", path)}, args...)
+		}
 	}
 
 	art := libbs.ArtifactResolver{
