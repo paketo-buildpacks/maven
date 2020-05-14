@@ -41,6 +41,8 @@ github.com/onsi/gomega v1.10.0 h1:Gwkk+PTu/nfOwNMtUB/mRUv0X7ewW5dO4AERT1ThVKo=
 github.com/onsi/gomega v1.10.0/go.mod h1:Ho0h+IUsWyvy1OpqCwxlQ/21gkhVunqlU8fDGcoTdcA=
 github.com/paketo-buildpacks/libbs v1.1.2 h1:ekUHNkdtdUv8ibkR8glixMNspbDtWDEoX8i7Kv5/iks=
 github.com/paketo-buildpacks/libbs v1.1.2/go.mod h1:BnRrSSmk/zfUyRo2n6BX/CFCtYxgBwDwEM8CgOUqwVA=
+github.com/paketo-buildpacks/libbs v1.2.1 h1:yWkwcprwUdu4G1BJcfvr+nBE+r/Lj+REl8Vvxk2XvF4=
+github.com/paketo-buildpacks/libbs v1.2.1/go.mod h1:gV2aRttFYWU8C3QrkOQeG1g9oQpGgLfsBR3YXDA5GYI=
 github.com/paketo-buildpacks/libjvm v1.13.2 h1:573H8QYjTTpE8lgngMbZ3MW14efbFAhaLxetv75Q9bQ=
 github.com/paketo-buildpacks/libjvm v1.13.2/go.mod h1:QJlVQZLsglXX+O2j/8SxpNMJJApr6RA23aWOjsccgqY=
 github.com/paketo-buildpacks/libpak v1.32.0/go.mod h1:r+orwxBe9Wb/HbjN9EPfphGLKxKW+dxm0NiFOCCGOX0=
@@ -83,6 +85,8 @@ golang.org/x/sys v0.0.0-20200302150141-5c8b2ff67527/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20200501145240-bc7a7d42d5c3 h1:5B6i6EAiSYyejWfvc5Rc9BbI3rzIsrrXfAQBWnYfn+w=
 golang.org/x/sys v0.0.0-20200501145240-bc7a7d42d5c3/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20200513112337-417ce2331b5c h1:kISX68E8gSkNYAFRFiDU8rl5RIn1sJYKYb/r2vMLDrU=
+golang.org/x/sys v0.0.0-20200513112337-417ce2331b5c/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.3.2 h1:tW2bmiBqwgJj/UpqtC8EpXEZVYOwU0yG4iWbprSVAcs=
 golang.org/x/text v0.3.2/go.mod h1:bEr9sfX3Q8Zfm5fL9x+3itogRgK3+ptLWKqgva+5dAk=

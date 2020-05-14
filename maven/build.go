@@ -17,7 +17,10 @@
 package maven
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -29,7 +32,13 @@ import (
 )
 
 type Build struct {
-	Logger bard.Logger
+	Logger             bard.Logger
+	ApplicationFactory ApplicationFactory
+}
+
+type ApplicationFactory interface {
+	NewApplication(additionalMetadata map[string]interface{}, arguments []string, artifactResolver libbs.ArtifactResolver,
+		cache libbs.Cache, command string, plan *libcnb.BuildpackPlan, applicationPath string) (libbs.Application, error)
 }
 
 func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
@@ -78,12 +87,14 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	if err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve build arguments\n%w", err)
 	}
+	md := map[string]interface{}{}
 	br := libpak.BindingResolver{Bindings: context.Platform.Bindings}
 	if binding, ok, err := br.Resolve("maven", ""); err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve binding\n%w", err)
 	} else if ok {
-		if path, ok := binding.SecretFilePath("settings.xml"); ok {
-			args = append([]string{fmt.Sprintf("--settings=%s", path)}, args...)
+		args, err = handleMavenSettings(binding, args, md)
+		if err != nil {
+			return libcnb.BuildResult{}, fmt.Errorf("unable to process maven settings from binding\n%w", err)
 		}
 	}
 
@@ -94,7 +105,15 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 		InterestingFileDetector:  libbs.JARInterestingFileDetector{},
 	}
 
-	a, err := libbs.NewApplication(context.Application.Path, args, art, c, command, result.Plan)
+	a, err := b.ApplicationFactory.NewApplication(
+		md,
+		args,
+		art,
+		c,
+		command,
+		result.Plan,
+		context.Application.Path,
+	)
 	if err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to create application layer\n%w", err)
 	}
@@ -102,4 +121,22 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	result.Layers = append(result.Layers, a)
 
 	return result, nil
+}
+
+func handleMavenSettings(binding libcnb.Binding, args []string, md map[string]interface{}) ([]string, error) {
+	path, ok := binding.SecretFilePath("settings.xml")
+	if !ok {
+		return args, nil
+	}
+	args = append([]string{fmt.Sprintf("--settings=%s", path)}, args...)
+	hasher := sha256.New()
+	settingsFile, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("unable to open settings.xml\n%w", err)
+	}
+	if _, err := io.Copy(hasher, settingsFile); err != nil {
+		return nil, fmt.Errorf("error hashing settings.xml\n%w", err)
+	}
+	md["settings-sha256"] = hex.EncodeToString(hasher.Sum(nil))
+	return args, nil
 }

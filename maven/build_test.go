@@ -26,16 +26,17 @@ import (
 	"github.com/buildpacks/libcnb"
 	. "github.com/onsi/gomega"
 	"github.com/paketo-buildpacks/libbs"
-	"github.com/sclevine/spec"
-
+	"github.com/paketo-buildpacks/libpak"
 	"github.com/paketo-buildpacks/maven/maven"
+	"github.com/sclevine/spec"
 )
 
 func testBuild(t *testing.T, context spec.G, it spec.S) {
 	var (
 		Expect = NewWithT(t).Expect
 
-		ctx libcnb.BuildContext
+		ctx        libcnb.BuildContext
+		mavenBuild maven.Build
 	)
 
 	it.Before(func() {
@@ -52,6 +53,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 
 		ctx.Layers.Path, err = ioutil.TempDir("", "build-layers")
 		Expect(err).NotTo(HaveOccurred())
+		mavenBuild = maven.Build{ApplicationFactory: &FakeApplicationFactory{}}
 	})
 
 	it.After(func() {
@@ -63,7 +65,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
 		ctx.StackID = "test-stack-id"
 
-		result, err := maven.Build{}.Build(ctx)
+		result, err := mavenBuild.Build(ctx)
 		Expect(err).NotTo(HaveOccurred())
 
 		Expect(result.Layers).To(HaveLen(2))
@@ -83,7 +85,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		}
 		ctx.StackID = "test-stack-id"
 
-		result, err := maven.Build{}.Build(ctx)
+		result, err := mavenBuild.Build(ctx)
 		Expect(err).NotTo(HaveOccurred())
 
 		Expect(result.Layers).To(HaveLen(3))
@@ -95,32 +97,73 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 	})
 
 	context("maven settings bindings exists", func() {
+		var result libcnb.BuildResult
+
 		it.Before(func() {
-			ctx.Platform.Path = "some-platform"
+			var err error
+			ctx.StackID = "test-stack-id"
+			ctx.Platform.Path, err = ioutil.TempDir("", "maven-test-platform")
+			Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
 			ctx.Platform.Bindings = libcnb.Bindings{libcnb.Binding{
 				Name: "some-maven",
 				Metadata: map[string]string{
 					"kind": "maven",
 				},
 				Secret: map[string]string{
-					"settings.xml": "",
+					"settings.xml": "maven-settings-content",
 				},
 				Path: filepath.Join(ctx.Platform.Path, "bindings", "some-maven"),
 			}}
+			mavenSettingsPath, ok := ctx.Platform.Bindings[0].SecretFilePath("settings.xml")
+			Expect(os.MkdirAll(filepath.Dir(mavenSettingsPath), 0777)).To(Succeed())
+			Expect(ok).To(BeTrue())
+			Expect(ioutil.WriteFile(
+				mavenSettingsPath,
+				[]byte("maven-settings-content"),
+				0644,
+			)).To(Succeed())
+
+			result, err = mavenBuild.Build(ctx)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result.Layers).To(HaveLen(2))
 		})
 
-		it("contributes settings.xml", func() {
-			Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
-			ctx.StackID = "test-stack-id"
+		it.After(func() {
+			Expect(os.RemoveAll(ctx.Platform.Path)).To(Succeed())
+		})
 
-			result, err := maven.Build{}.Build(ctx)
-			Expect(err).NotTo(HaveOccurred())
-
-			Expect(result.Layers).To(HaveLen(2))
+		it("provides --settings argument to maven", func() {
 			Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{
-				fmt.Sprintf("--settings=%s", filepath.Join("some-platform", "bindings", "some-maven", "secret", "settings.xml")),
+				fmt.Sprintf("--settings=%s", filepath.Join(ctx.Platform.Path, "bindings", "some-maven", "secret", "settings.xml")),
 				"test-argument",
 			}))
 		})
+
+		it("adds the hash of settings.xml to the layer metadata", func() {
+			md := result.Layers[1].(libbs.Application).LayerContributor.ExpectedMetadata
+			mdMap, ok := md.(map[string]interface{})
+			Expect(ok).To(BeTrue())
+			//expected: sha256 of the string "maven-settings-content"
+			expected := "cc784f356a8efb8e138b99aabe8b1c813a3e921b059c48a0b39b2497a2c478c5"
+			Expect(mdMap["settings-sha256"]).To(Equal(expected))
+		})
 	})
+}
+
+type FakeApplicationFactory struct{}
+
+func (f *FakeApplicationFactory) NewApplication(
+	additionalMetdata map[string]interface{},
+	argugments []string,
+	_ libbs.ArtifactResolver,
+	_ libbs.Cache,
+	command string,
+	_ *libcnb.BuildpackPlan,
+	_ string,
+) (libbs.Application, error) {
+	return libbs.Application{
+		LayerContributor: libpak.NewLayerContributor("Compiled Application", additionalMetdata),
+		Arguments:        argugments,
+		Command:          command,
+	}, nil
 }

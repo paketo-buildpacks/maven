@@ -19,6 +19,7 @@ package main
 import (
 	"os"
 
+	"github.com/paketo-buildpacks/libbs"
 	"github.com/paketo-buildpacks/libpak"
 	"github.com/paketo-buildpacks/libpak/bard"
 	"github.com/paketo-buildpacks/maven/maven"
@@ -27,6 +28,9 @@ import (
 func main() {
 	libpak.Main(
 		maven.Detect{},
-		maven.Build{Logger: bard.NewLogger(os.Stdout)},
+		maven.Build{
+			Logger:             bard.NewLogger(os.Stdout),
+			ApplicationFactory: libbs.NewApplicationFactory(),
+		},
 	)
 }
