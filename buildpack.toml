@@ -30,15 +30,18 @@ id = "org.cloudfoundry.stacks.cflinuxfs3"
 name        = "BP_MAVEN_BUILD_ARGUMENTS"
 description = "the arguments to pass to Maven"
 default     = "-Dmaven.test.skip=true package"
+build       = true
 
 [[metadata.configurations]]
 name        = "BP_MAVEN_BUILT_ARTIFACT"
 description = "the built application artifact explicitly.  Supersedes $BP_MAVEN_BUILT_MODULE"
 default     = "target/*.[jw]ar"
+build       = true
 
 [[metadata.configurations]]
 name        = "BP_MAVEN_BUILT_MODULE"
 description = "the module to find application artifact in"
+build       = true
 
 [[metadata.dependencies]]
 id      = "maven"
