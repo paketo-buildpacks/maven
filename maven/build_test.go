@@ -105,16 +105,14 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			ctx.StackID = "test-stack-id"
 			ctx.Platform.Path, err = ioutil.TempDir("", "maven-test-platform")
 			Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
-			ctx.Platform.Bindings = libcnb.Bindings{libcnb.Binding{
-				Name: "some-maven",
-				Metadata: map[string]string{
-					"kind": "maven",
+			ctx.Platform.Bindings = libcnb.Bindings{
+				{
+					Name:   "some-maven",
+					Type:   "maven",
+					Secret: map[string]string{"settings.xml": "maven-settings-content"},
+					Path:   filepath.Join(ctx.Platform.Path, "bindings", "some-maven"),
 				},
-				Secret: map[string]string{
-					"settings.xml": "maven-settings-content",
-				},
-				Path: filepath.Join(ctx.Platform.Path, "bindings", "some-maven"),
-			}}
+			}
 			mavenSettingsPath, ok := ctx.Platform.Bindings[0].SecretFilePath("settings.xml")
 			Expect(os.MkdirAll(filepath.Dir(mavenSettingsPath), 0777)).To(Succeed())
 			Expect(ok).To(BeTrue())
@@ -135,7 +133,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 
 		it("provides --settings argument to maven", func() {
 			Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{
-				fmt.Sprintf("--settings=%s", filepath.Join(ctx.Platform.Path, "bindings", "some-maven", "secret", "settings.xml")),
+				fmt.Sprintf("--settings=%s", filepath.Join(ctx.Platform.Path, "bindings", "some-maven", "settings.xml")),
 				"test-argument",
 			}))
 		})
@@ -144,7 +142,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			md := result.Layers[1].(libbs.Application).LayerContributor.ExpectedMetadata
 			mdMap, ok := md.(map[string]interface{})
 			Expect(ok).To(BeTrue())
-			//expected: sha256 of the string "maven-settings-content"
+			// expected: sha256 of the string "maven-settings-content"
 			expected := "cc784f356a8efb8e138b99aabe8b1c813a3e921b059c48a0b39b2497a2c478c5"
 			Expect(mdMap["settings-sha256"]).To(Equal(expected))
 		})

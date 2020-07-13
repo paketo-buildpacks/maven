@@ -26,7 +26,7 @@ The buildpack will do the following:
 | `$BP_MAVEN_BUILT_ARTIFACT` | Configure the built application artifact explicitly.  Supersedes `$BP_MAVEN_BUILT_MODULE`  Defaults to `target/*.[jw]ar`.
 
 ## Bindings
-The buildpack optionally accepts a binding with `kind` `maven`
+The buildpack optionally accepts a binding with `type` `maven`
 
 |Secret | Description
 |-----|--------------

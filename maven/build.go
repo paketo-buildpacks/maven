@@ -89,7 +89,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	}
 	md := map[string]interface{}{}
 	br := libpak.BindingResolver{Bindings: context.Platform.Bindings}
-	if binding, ok, err := br.Resolve("maven", ""); err != nil {
+	if binding, ok, err := br.Resolve("maven"); err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve binding\n%w", err)
 	} else if ok {
 		args, err = handleMavenSettings(binding, args, md)
