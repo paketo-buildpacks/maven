@@ -4,6 +4,8 @@ github.com/Masterminds/semver/v3 v3.1.0 h1:Y2lUDsFKVRSYGojLJ1yLxSXdMmMYTYls0rCvo
 github.com/Masterminds/semver/v3 v3.1.0/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/buildpacks/libcnb v1.15.1 h1:AXTxZkHh7868Prx6CnYoE/lJoglkI+H83BX1XX8XB0c=
 github.com/buildpacks/libcnb v1.15.1/go.mod h1:WTlY7cneYfP2+SNY/Bqywnx/+gMSbJkiZSjxZ34zoaU=
+github.com/buildpacks/libcnb v1.15.2 h1:f1b2LGqc0PXBSMHJyGFDepDn13YtiiXx2/JewQp9HWw=
+github.com/buildpacks/libcnb v1.15.2/go.mod h1:WTlY7cneYfP2+SNY/Bqywnx/+gMSbJkiZSjxZ34zoaU=
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/creack/pty v1.1.11 h1:07n33Z8lZxZ2qwegKbObQohDhXDQxiMMz1NOUGYlesw=
 github.com/creack/pty v1.1.11/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
@@ -58,6 +60,8 @@ github.com/paketo-buildpacks/libbs v1.2.6 h1:ICO1xRPi8hF8HNMhM3alSzTWb54DDKZzwTm
 github.com/paketo-buildpacks/libbs v1.2.6/go.mod h1:CQ5IGRL4dyz88nlYn1u++oBwrF/ZYoxP+j6LpNXDjTI=
 github.com/paketo-buildpacks/libjvm v1.16.3 h1:c7/ixgTPC9CrsJhWDO0GSoQ2g8MmWI3+badyJuxE6FA=
 github.com/paketo-buildpacks/libjvm v1.16.3/go.mod h1:FondQVw8iQ5P5G1/+QcZ48CBS/gY/6vwmq1mdp4GWWY=
+github.com/paketo-buildpacks/libjvm v1.16.4 h1:EaXAMXw8DCo20Jk7P2DpRDbL3M+S5De4aNtPPkQ40ic=
+github.com/paketo-buildpacks/libjvm v1.16.4/go.mod h1:FondQVw8iQ5P5G1/+QcZ48CBS/gY/6vwmq1mdp4GWWY=
 github.com/paketo-buildpacks/libpak v1.38.0 h1:kzvONCQySmthbiwORiy9F6wxGMGk+dgV1KOp677L5PE=
 github.com/paketo-buildpacks/libpak v1.38.0/go.mod h1:JUx7gJUOJLjchYmsoWMEEM5UULzwdybF101eg8eDD+E=
 github.com/pavel-v-chernykh/keystore-go v2.1.0+incompatible h1:Jd6xfriVlJ6hWPvYOE0Ni0QWcNTLRehfGPFxr3eSL80=
