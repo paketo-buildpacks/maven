@@ -26,11 +26,17 @@ The buildpack will do the following:
 | `$BP_MAVEN_BUILT_ARTIFACT` | Configure the built application artifact explicitly.  Supersedes `$BP_MAVEN_BUILT_MODULE`  Defaults to `target/*.[jw]ar`.
 
 ## Bindings
-The buildpack optionally accepts a binding with `type` `maven`
+The buildpack optionally accepts the following bindings:
 
+### Type: `maven`
 |Secret | Description
 |-----|--------------
 |`settings.xml` | If present, `--settings=<path/to/settings.xml>` is prepended to the `maven` arguments
+
+### Type: `dependency-mapping`
+|Key                   | Value   | Description
+|----------------------|---------|------------
+|`<dependency-digest>` | `<uri>` | If needed, the buildpack will fetch the dependency with digest `<dependency-digest>` from `<uri>`
 
 ## License
 This buildpack is released under version 2.0 of the [Apache License][a].
