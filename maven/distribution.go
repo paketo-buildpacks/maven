@@ -44,9 +44,8 @@ func (d Distribution) Contribute(layer libcnb.Layer) (libcnb.Layer, error) {
 			return libcnb.Layer{}, fmt.Errorf("unable to expand Maven\n%w", err)
 		}
 
-		layer.Cache = true
 		return layer, nil
-	})
+	}, libpak.CacheLayer)
 }
 
 func (d Distribution) Name() string {
