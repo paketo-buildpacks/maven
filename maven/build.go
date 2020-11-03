@@ -29,6 +29,7 @@ import (
 	"github.com/paketo-buildpacks/libbs"
 	"github.com/paketo-buildpacks/libpak"
 	"github.com/paketo-buildpacks/libpak/bard"
+	"github.com/paketo-buildpacks/libpak/bindings"
 )
 
 type Build struct {
@@ -94,9 +95,9 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	if err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve build arguments\n%w", err)
 	}
+
 	md := map[string]interface{}{}
-	br := libpak.BindingResolver{Bindings: context.Platform.Bindings}
-	if binding, ok, err := br.Resolve("maven"); err != nil {
+	if binding, ok, err := bindings.ResolveOne(context.Platform.Bindings, bindings.OfType("maven")); err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve binding\n%w", err)
 	} else if ok {
 		args, err = handleMavenSettings(binding, args, md)
