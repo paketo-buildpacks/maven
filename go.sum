@@ -6,8 +6,8 @@ github.com/Masterminds/semver/v3 v3.1.1 h1:hLg3sBzpNErnxhQtUy/mmLR2I9foDujNK030I
 github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/buildpacks/libcnb v1.18.0 h1:Q7I+HjQ1Cq02/AqhTOrzecuNESip9xE2axckxnymYLQ=
 github.com/buildpacks/libcnb v1.18.0/go.mod h1:yzAQd//jyUXVx6Z/F0cKk/hrl49QZq1OE/hP5+/ZPuQ=
-github.com/buildpacks/libcnb v1.18.1 h1:NcAqtyLmSkpcgIOl83GOHY5Mk2ltBFiAI8mmAvavvEs=
-github.com/buildpacks/libcnb v1.18.1/go.mod h1:ozKZYold67tlck+1cobg11YhGmJqkQr8bMAH5gSvEvw=
+github.com/buildpacks/libcnb v1.19.0 h1:7Frn3qErlVmQydk95YXmHtpmf5bZ1l7h4rK/C+SKAmY=
+github.com/buildpacks/libcnb v1.19.0/go.mod h1:slnOsywO4mNdkShkwX1GYR+kQF1tH2F9Urfr66lWGQs=
 github.com/creack/pty v1.1.11 h1:07n33Z8lZxZ2qwegKbObQohDhXDQxiMMz1NOUGYlesw=
 github.com/creack/pty v1.1.11/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
@@ -60,8 +60,8 @@ github.com/paketo-buildpacks/libjvm v1.24.0 h1:OWQvAQDB73O2JvkJzTaZCdFXlTMEDl/mW
 github.com/paketo-buildpacks/libjvm v1.24.0/go.mod h1:rT0L8Rd1zU0JzibwZ+r5t4PCyAZshKWOG7oDbDMNNqU=
 github.com/paketo-buildpacks/libpak v1.48.0/go.mod h1:gx1On0u2+Ihyy4sw3nwnawsb+Mkby1FBB/7DQReXdxs=
 github.com/paketo-buildpacks/libpak v1.49.0/go.mod h1:8vMe0mZNZj1vqngvtH6KCrs98mL+KW9mTymOb5PE6pw=
-github.com/paketo-buildpacks/libpak v1.50.1 h1:FumhbCg/sY3xzCyTj7je+0c4aQsVBU9T5ZJIBCexu9M=
-github.com/paketo-buildpacks/libpak v1.50.1/go.mod h1:8EpJg+Lju6Vqb21ot4FXxTJbX8h6p0+xRWPF3uu5jPo=
+github.com/paketo-buildpacks/libpak v1.51.0 h1:l9qhxIAn0K4KkcrScR4cnu8sNk5h+j9MynX6bbcCwHY=
+github.com/paketo-buildpacks/libpak v1.51.0/go.mod h1:HPC3yyLkRW1P4ObNt3fxpFxldFrS1J0AkxpoFkqyB/Y=
 github.com/pavel-v-chernykh/keystore-go v2.1.0+incompatible h1:Jd6xfriVlJ6hWPvYOE0Ni0QWcNTLRehfGPFxr3eSL80=
 github.com/pavel-v-chernykh/keystore-go v2.1.0+incompatible/go.mod h1:xlUlxe/2ItGlQyMTstqeDv9r3U4obH7xYd26TbDQutY=
 github.com/pelletier/go-toml v1.8.1 h1:1Nf83orprkJyknT6h7zbuEGUEjcyVlCxSUGTENmNCRM=
