@@ -31,8 +31,11 @@ type Distribution struct {
 	Logger           bard.Logger
 }
 
-func NewDistribution(dependency libpak.BuildpackDependency, cache libpak.DependencyCache, plan *libcnb.BuildpackPlan) Distribution {
-	return Distribution{LayerContributor: libpak.NewDependencyLayerContributor(dependency, cache, plan)}
+func NewDistribution(dependency libpak.BuildpackDependency, cache libpak.DependencyCache) (Distribution, libcnb.BOMEntry) {
+	contributor, entry := libpak.NewDependencyLayer(dependency, cache, libcnb.LayerTypes{
+		Cache: true,
+	})
+	return Distribution{LayerContributor: contributor}, entry
 }
 
 func (d Distribution) Contribute(layer libcnb.Layer) (libcnb.Layer, error) {
@@ -45,7 +48,7 @@ func (d Distribution) Contribute(layer libcnb.Layer) (libcnb.Layer, error) {
 		}
 
 		return layer, nil
-	}, libpak.CacheLayer)
+	})
 }
 
 func (d Distribution) Name() string {

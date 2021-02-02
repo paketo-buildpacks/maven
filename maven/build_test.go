@@ -99,6 +99,11 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(result.Layers[2].Name()).To(Equal("application"))
 		Expect(result.Layers[2].(libbs.Application).Command).To(Equal(filepath.Join(ctx.Layers.Path, "maven", "bin", "mvn")))
 		Expect(result.Layers[2].(libbs.Application).Arguments).To(Equal([]string{"test-argument"}))
+
+		Expect(result.BOM.Entries).To(HaveLen(1))
+		Expect(result.BOM.Entries[0].Name).To(Equal("maven"))
+		Expect(result.BOM.Entries[0].Build).To(BeTrue())
+		Expect(result.BOM.Entries[0].Launch).To(BeFalse())
 	})
 
 	context("maven settings bindings exists", func() {
@@ -161,11 +166,16 @@ func (f *FakeApplicationFactory) NewApplication(
 	_ libbs.ArtifactResolver,
 	_ libbs.Cache,
 	command string,
-	_ *libcnb.BuildpackPlan,
+	_ *libcnb.BOM,
 	_ string,
 ) (libbs.Application, error) {
+	contributor := libpak.NewLayerContributor(
+		"Compiled Application",
+		additionalMetdata,
+		libcnb.LayerTypes{Cache: true},
+	)
 	return libbs.Application{
-		LayerContributor: libpak.NewLayerContributor("Compiled Application", additionalMetdata),
+		LayerContributor: contributor,
 		Arguments:        argugments,
 		Command:          command,
 	}, nil
