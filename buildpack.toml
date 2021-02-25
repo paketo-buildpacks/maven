@@ -32,7 +32,7 @@ id = "org.cloudfoundry.stacks.cflinuxfs3"
 [[metadata.configurations]]
 name        = "BP_MAVEN_BUILD_ARGUMENTS"
 description = "the arguments to pass to Maven"
-default     = "-Dmaven.test.skip=true package"
+default     = "--batch-mode -Dmaven.test.skip=true package"
 build       = true
 
 [[metadata.configurations]]
