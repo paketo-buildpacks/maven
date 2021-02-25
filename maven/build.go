@@ -35,6 +35,7 @@ import (
 type Build struct {
 	Logger             bard.Logger
 	ApplicationFactory ApplicationFactory
+	TTY bool
 }
 
 type ApplicationFactory interface {
@@ -97,6 +98,11 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve build arguments\n%w", err)
 	}
 
+	if !b.TTY && !contains(args, []string{"-B", "--batch-mode"}) {
+		// terminal is not tty, and the user did not set batch mode; let's set it
+		args = append([]string{"--batch-mode"}, args...)
+	}
+
 	md := map[string]interface{}{}
 	if binding, ok, err := bindings.ResolveOne(context.Platform.Bindings, bindings.OfType("maven")); err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve binding\n%w", err)
@@ -148,4 +154,15 @@ func handleMavenSettings(binding libcnb.Binding, args []string, md map[string]in
 	}
 	md["settings-sha256"] = hex.EncodeToString(hasher.Sum(nil))
 	return args, nil
+}
+
+func contains(strings []string, stringsSearchedAfter []string) bool {
+	for _, v := range strings {
+		for _, stringSearchedAfter := range stringsSearchedAfter {
+			if v == stringSearchedAfter {
+				return true
+			}
+		}	
+	}
+	return false
 }

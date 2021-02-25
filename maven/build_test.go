@@ -54,12 +54,50 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 
 		ctx.Layers.Path, err = ioutil.TempDir("", "build-layers")
 		Expect(err).NotTo(HaveOccurred())
-		mavenBuild = maven.Build{ApplicationFactory: &FakeApplicationFactory{}}
+		mavenBuild = maven.Build{
+			ApplicationFactory: &FakeApplicationFactory{},
+			TTY: true,
+		}
 	})
 
 	it.After(func() {
 		Expect(os.RemoveAll(ctx.Application.Path)).To(Succeed())
 		Expect(os.RemoveAll(ctx.Layers.Path)).To(Succeed())
+	})
+
+	it("adds --batch-mode if terminal is not tty and the user did not specify it", func() {
+		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
+		ctx.StackID = "test-stack-id"
+		mavenBuild.TTY = false
+		
+		result, err := mavenBuild.Build(ctx)
+		Expect(err).NotTo(HaveOccurred())
+		
+		Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{
+			"--batch-mode",
+			"test-argument",
+		}))
+		
+	})
+
+	it("does not add --batch-mode a second time if terminal is not tty and the user already specified it", func() {
+		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
+		ctx.StackID = "test-stack-id"
+		mavenBuild.TTY = false
+		ctx.Buildpack.Metadata = map[string]interface{}{
+			"configurations": []map[string]interface{}{
+				{"name": "BP_MAVEN_BUILD_ARGUMENTS", "default": "--batch-mode test-argument"},
+			},
+		}
+
+		result, err := mavenBuild.Build(ctx)
+		Expect(err).NotTo(HaveOccurred())
+		
+		Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{
+			"--batch-mode",
+			"test-argument",
+		}))
+		
 	})
 
 	it("does not contribute distribution if wrapper exists", func() {
