@@ -80,24 +80,28 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		
 	})
 
-	it("does not add --batch-mode a second time if terminal is not tty and the user already specified it", func() {
-		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
-		ctx.StackID = "test-stack-id"
-		mavenBuild.TTY = false
-		ctx.Buildpack.Metadata = map[string]interface{}{
-			"configurations": []map[string]interface{}{
-				{"name": "BP_MAVEN_BUILD_ARGUMENTS", "default": "--batch-mode test-argument"},
-			},
-		}
+	context("BP_MAVEN_BUILD_ARGUMENTS includes --batch-mode", func() {
+		it.Before(func() {
+			Expect(os.Setenv("BP_MAVEN_BUILD_ARGUMENTS", "--batch-mode user-provided-argument")).To(Succeed())
+		})
 
-		result, err := mavenBuild.Build(ctx)
-		Expect(err).NotTo(HaveOccurred())
-		
-		Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{
-			"--batch-mode",
-			"test-argument",
-		}))
-		
+		it.After(func() {
+			Expect(os.Unsetenv(("BP_MAVEN_BUILD_ARGUMENTS"))).To(Succeed())
+		})
+
+		it("does not add --batch-mode a second time if terminal is not tty and the user already specified it", func() {
+			Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
+			ctx.StackID = "test-stack-id"
+			mavenBuild.TTY = false
+
+			result, err := mavenBuild.Build(ctx)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{
+				"--batch-mode",
+				"user-provided-argument",
+			}))
+		})
 	})
 
 	it("does not contribute distribution if wrapper exists", func() {

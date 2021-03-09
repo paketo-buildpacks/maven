@@ -19,27 +19,22 @@ package main
 import (
 	"os"
 
+	"github.com/mattn/go-isatty"
 	"github.com/paketo-buildpacks/libbs"
 	"github.com/paketo-buildpacks/libpak"
 	"github.com/paketo-buildpacks/libpak/bard"
-	"github.com/mattn/go-isatty"
 
 	"github.com/paketo-buildpacks/maven/maven"
 )
 
 func main() {
 
-	var TTY = false
-	if isatty.IsTerminal(os.Stdout.Fd()) {
-		TTY = true
-	}
-
 	libpak.Main(
 		maven.Detect{},
 		maven.Build{
 			Logger:             bard.NewLogger(os.Stdout),
 			ApplicationFactory: libbs.NewApplicationFactory(),
-			TTY: TTY,
+			TTY:                isatty.IsTerminal(os.Stdout.Fd()),
 		},
 	)
 }
