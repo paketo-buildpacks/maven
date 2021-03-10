@@ -60,7 +60,7 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 			Plans: []libcnb.BuildPlan{
 				{
 					Provides: []libcnb.BuildPlanProvide{
-						{Name: "jvm-application"},
+						{Name: "jvm-application-package"},
 						{Name: "maven"},
 					},
 					Requires: []libcnb.BuildPlanRequire{

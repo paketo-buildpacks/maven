@@ -35,7 +35,7 @@ import (
 type Build struct {
 	Logger             bard.Logger
 	ApplicationFactory ApplicationFactory
-	TTY bool
+	TTY                bool
 }
 
 type ApplicationFactory interface {
@@ -162,7 +162,7 @@ func contains(strings []string, stringsSearchedAfter []string) bool {
 			if v == stringSearchedAfter {
 				return true
 			}
-		}	
+		}
 	}
 	return false
 }
