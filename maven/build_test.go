@@ -56,7 +56,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(err).NotTo(HaveOccurred())
 		mavenBuild = maven.Build{
 			ApplicationFactory: &FakeApplicationFactory{},
-			TTY: true,
+			TTY:                true,
 		}
 	})
 
@@ -69,15 +69,15 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
 		ctx.StackID = "test-stack-id"
 		mavenBuild.TTY = false
-		
+
 		result, err := mavenBuild.Build(ctx)
 		Expect(err).NotTo(HaveOccurred())
-		
+
 		Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{
 			"--batch-mode",
 			"test-argument",
 		}))
-		
+
 	})
 
 	context("BP_MAVEN_BUILD_ARGUMENTS includes --batch-mode", func() {
