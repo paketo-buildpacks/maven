@@ -29,9 +29,10 @@ The buildpack will do the following:
 The buildpack optionally accepts the following bindings:
 
 ### Type: `maven`
-|Secret | Description
-|-----|--------------
-|`settings.xml` | If present, `--settings=<path/to/settings.xml>` is prepended to the `maven` arguments
+|Secret                  | Description
+|------------------------|--------------
+|`settings.xml`          | If present `--settings=<path/to/settings.xml>` is prepended to the `maven` arguments
+|`settings-security.xml` | If present `-Dsettings.security=<path/to/settings-security.xml>` is prepended to the `maven` arguments
 
 ### Type: `dependency-mapping`
 |Key                   | Value   | Description

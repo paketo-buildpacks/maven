@@ -139,13 +139,14 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 }
 
 func handleMavenSettings(binding libcnb.Binding, args []string, md map[string]interface{}) ([]string, error) {
-	path, ok := binding.SecretFilePath("settings.xml")
+	settingsPath, ok := binding.SecretFilePath("settings.xml")
 	if !ok {
 		return args, nil
 	}
-	args = append([]string{fmt.Sprintf("--settings=%s", path)}, args...)
+	args = append([]string{fmt.Sprintf("--settings=%s", settingsPath)}, args...)
+
 	hasher := sha256.New()
-	settingsFile, err := os.Open(path)
+	settingsFile, err := os.Open(settingsPath)
 	if err != nil {
 		return nil, fmt.Errorf("unable to open settings.xml\n%w", err)
 	}
@@ -153,6 +154,23 @@ func handleMavenSettings(binding libcnb.Binding, args []string, md map[string]in
 		return nil, fmt.Errorf("error hashing settings.xml\n%w", err)
 	}
 	md["settings-sha256"] = hex.EncodeToString(hasher.Sum(nil))
+
+	settingsSecurityPath, ok := binding.SecretFilePath("settings-security.xml")
+	if !ok {
+		return args, nil
+	}
+	args = append([]string{fmt.Sprintf("-Dsettings.security=%s", settingsSecurityPath)}, args...)
+
+	hasher.Reset()
+	settingsSecurityFile, err := os.Open(settingsSecurityPath)
+	if err != nil {
+		return nil, fmt.Errorf("unable to open settings-security.xml\n%w", err)
+	}
+	if _, err := io.Copy(hasher, settingsSecurityFile); err != nil {
+		return nil, fmt.Errorf("error hashing settings-security.xml\n%w", err)
+	}
+	md["settings-security-sha256"] = hex.EncodeToString(hasher.Sum(nil))
+
 	return args, nil
 }
 

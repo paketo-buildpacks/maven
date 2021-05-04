@@ -198,6 +198,73 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			Expect(mdMap["settings-sha256"]).To(Equal(expected))
 		})
 	})
+
+	context("maven settings incl. settings-security bindings exists", func() {
+		var result libcnb.BuildResult
+
+		it.Before(func() {
+			var err error
+			ctx.StackID = "test-stack-id"
+			ctx.Platform.Path, err = ioutil.TempDir("", "maven-test-platform")
+			Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
+			ctx.Platform.Bindings = libcnb.Bindings{
+				{
+					Name: "some-maven",
+					Type: "maven",
+					Secret: map[string]string{
+						"settings.xml":          "maven-settings-content",
+						"settings-security.xml": "maven-settings-security-content",
+					},
+					Path: filepath.Join(ctx.Platform.Path, "bindings", "some-maven"),
+				},
+			}
+			mavenSettingsPath, ok := ctx.Platform.Bindings[0].SecretFilePath("settings.xml")
+			Expect(os.MkdirAll(filepath.Dir(mavenSettingsPath), 0777)).To(Succeed())
+			Expect(ok).To(BeTrue())
+			Expect(ioutil.WriteFile(
+				mavenSettingsPath,
+				[]byte("maven-settings-content"),
+				0644,
+			)).To(Succeed())
+
+			mavenSettingsSecurityPath, ok := ctx.Platform.Bindings[0].SecretFilePath("settings-security.xml")
+			Expect(os.MkdirAll(filepath.Dir(mavenSettingsSecurityPath), 0777)).To(Succeed())
+			Expect(ok).To(BeTrue())
+			Expect(ioutil.WriteFile(
+				mavenSettingsSecurityPath,
+				[]byte("maven-settings-security-content"),
+				0644,
+			)).To(Succeed())
+
+			result, err = mavenBuild.Build(ctx)
+			Expect(err).NotTo(HaveOccurred())
+			Expect(result.Layers).To(HaveLen(2))
+		})
+
+		it.After(func() {
+			Expect(os.RemoveAll(ctx.Platform.Path)).To(Succeed())
+		})
+
+		it("provides -Dsettings.security and --settings argument to maven", func() {
+			Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{
+				fmt.Sprintf("-Dsettings.security=%s", filepath.Join(ctx.Platform.Path, "bindings", "some-maven", "settings-security.xml")),
+				fmt.Sprintf("--settings=%s", filepath.Join(ctx.Platform.Path, "bindings", "some-maven", "settings.xml")),
+				"test-argument",
+			}))
+		})
+
+		it("adds the hash of settings-security.xml and settings.xml to the layer metadata", func() {
+			md := result.Layers[1].(libbs.Application).LayerContributor.ExpectedMetadata
+			mdMap, ok := md.(map[string]interface{})
+			Expect(ok).To(BeTrue())
+			// expected: sha256 of the string "maven-settings-content"
+			expected := "cc784f356a8efb8e138b99aabe8b1c813a3e921b059c48a0b39b2497a2c478c5"
+			Expect(mdMap["settings-sha256"]).To(Equal(expected))
+			// expected: sha256 of the string "maven-settings-security-content"
+			expected = "91dff74ef3ab7f5ccb5808b32c30d2ab35b9f699d9a613c05a7f45eb83dd4c3a"
+			Expect(mdMap["settings-security-sha256"]).To(Equal(expected))
+		})
+	})
 }
 
 type FakeApplicationFactory struct{}
