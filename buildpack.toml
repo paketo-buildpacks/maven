@@ -12,13 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-api = "0.5"
+api = "0.6"
 
 [buildpack]
 id       = "paketo-buildpacks/maven"
 name     = "Paketo Maven Buildpack"
 version  = "{{.version}}"
 homepage = "https://github.com/paketo-buildpacks/maven"
+description = "A Cloud Native Buildpack that builds Maven-based applications from source"
+keywords    = ["java", "maven", "build-system"]
+
+[[buildpack.licenses]]
+type = "Apache-2.0"
+uri  = "https://github.com/paketo-buildpacks/maven/blob/main/LICENSE"
 
 [[stacks]]
 id = "io.buildpacks.stacks.bionic"
