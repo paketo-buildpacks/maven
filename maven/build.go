@@ -17,10 +17,12 @@
 package maven
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -82,6 +84,11 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 		if err := os.Chmod(command, 0755); err != nil {
 			return libcnb.BuildResult{}, fmt.Errorf("unable to chmod %s\n%w", command, err)
 		}
+
+		if err = b.CleanMvnWrapper(command); err != nil {
+			return libcnb.BuildResult{}, fmt.Errorf("unable to clean mvnw file: %s\n%w", command, err)
+		}
+
 	}
 
 	u, err := user.Current()
@@ -183,4 +190,25 @@ func contains(strings []string, stringsSearchedAfter []string) bool {
 		}
 	}
 	return false
+}
+
+func (b Build) CleanMvnWrapper(fileName string) error {
+
+	fileContents, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		return err
+	}
+
+	// the mvnw file can contain Windows CRLF line endings, e.g. from a 'git clone' on windows
+	// we replace these so that the unix container can execute the wrapper successfully
+
+	// replace CRLF with LF
+	fileContents = bytes.ReplaceAll(fileContents, []byte{13}, []byte{})
+
+	err = ioutil.WriteFile(fileName, fileContents, 0755)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

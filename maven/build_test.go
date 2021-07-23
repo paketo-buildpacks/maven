@@ -17,6 +17,7 @@
 package maven_test
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -264,6 +265,32 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			expected = "91dff74ef3ab7f5ccb5808b32c30d2ab35b9f699d9a613c05a7f45eb83dd4c3a"
 			Expect(mdMap["settings-security-sha256"]).To(Equal(expected))
 		})
+	})
+
+	it("converts CRLF formatting in the mvnw file to LF (unix) if present", func() {
+		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte("test\r\n"), 0644)).To(Succeed())
+		ctx.StackID = "test-stack-id"
+
+		err := mavenBuild.CleanMvnWrapper(filepath.Join(ctx.Application.Path, "mvnw"))
+		Expect(err).NotTo(HaveOccurred())
+
+		contents, err := ioutil.ReadFile(filepath.Join(ctx.Application.Path, "mvnw"))
+		Expect(err).NotTo(HaveOccurred())
+		Expect(bytes.Compare(contents, []byte("test\n"))).To(Equal(0))
+
+	})
+
+	it("Does not perform format conversion in the mvnw file if not required", func() {
+		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte("test\n"), 0644)).To(Succeed())
+		ctx.StackID = "test-stack-id"
+
+		err := mavenBuild.CleanMvnWrapper(filepath.Join(ctx.Application.Path, "mvnw"))
+		Expect(err).NotTo(HaveOccurred())
+
+		contents, err := ioutil.ReadFile(filepath.Join(ctx.Application.Path, "mvnw"))
+		Expect(err).NotTo(HaveOccurred())
+		Expect(bytes.Compare(contents, []byte("test\n"))).To(Equal(0))
+
 	})
 }
 

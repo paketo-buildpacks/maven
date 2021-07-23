@@ -9,4 +9,5 @@ require (
 	github.com/paketo-buildpacks/libbs v1.8.2
 	github.com/paketo-buildpacks/libpak v1.51.1
 	github.com/sclevine/spec v1.4.0
+
 )
