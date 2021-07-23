@@ -271,40 +271,26 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte("test\r\n"), 0644)).To(Succeed())
 		ctx.StackID = "test-stack-id"
 
-		result, err := mavenBuild.Build(ctx)
-		Expect(err).NotTo(HaveOccurred())
-
-		_, err = os.Stat(filepath.Join(ctx.Application.Path, "mvnw"))
+		err := mavenBuild.CleanMvnWrapper(filepath.Join(ctx.Application.Path, "mvnw"))
 		Expect(err).NotTo(HaveOccurred())
 
 		contents, err := ioutil.ReadFile(filepath.Join(ctx.Application.Path, "mvnw"))
 		Expect(err).NotTo(HaveOccurred())
 		Expect(bytes.Compare(contents, []byte("test\n"))).To(Equal(0))
 
-		Expect(result.Layers).To(HaveLen(2))
-		Expect(result.Layers[0].Name()).To(Equal("cache"))
-		Expect(result.Layers[1].Name()).To(Equal("application"))
-		Expect(result.Layers[1].(libbs.Application).Command).To(Equal(filepath.Join(ctx.Application.Path, "mvnw")))
 	})
 
 	it("Does not perform format conversion in the mvnw file if not required", func() {
 		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte("test\n"), 0644)).To(Succeed())
 		ctx.StackID = "test-stack-id"
 
-		result, err := mavenBuild.Build(ctx)
-		Expect(err).NotTo(HaveOccurred())
-
-		_, err = os.Stat(filepath.Join(ctx.Application.Path, "mvnw"))
+		err := mavenBuild.CleanMvnWrapper(filepath.Join(ctx.Application.Path, "mvnw"))
 		Expect(err).NotTo(HaveOccurred())
 
 		contents, err := ioutil.ReadFile(filepath.Join(ctx.Application.Path, "mvnw"))
 		Expect(err).NotTo(HaveOccurred())
 		Expect(bytes.Compare(contents, []byte("test\n"))).To(Equal(0))
 
-		Expect(result.Layers).To(HaveLen(2))
-		Expect(result.Layers[0].Name()).To(Equal("cache"))
-		Expect(result.Layers[1].Name()).To(Equal("application"))
-		Expect(result.Layers[1].(libbs.Application).Command).To(Equal(filepath.Join(ctx.Application.Path, "mvnw")))
 	})
 }
 

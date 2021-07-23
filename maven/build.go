@@ -85,21 +85,8 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 			return libcnb.BuildResult{}, fmt.Errorf("unable to chmod %s\n%w", command, err)
 		}
 
-		file, err := ioutil.ReadFile(command)
-		if err != nil {
-			return libcnb.BuildResult{}, fmt.Errorf("unable to read mvnw file %s\n%w", command, err)
-		}
-
-		if bytes.ContainsAny(file, "\r\n") || bytes.ContainsAny(file, "\r") {
-
-			// the mvnw file can contain Windows CRLF line endings, e.g. from a 'git clone' on windows
-			// we call replaceLineEndings to replace these so that the unix container can execute the wrapper successfully
-			b := replaceLineEndings(file)
-
-			err = ioutil.WriteFile(command, []byte(b), 0755)
-			if err != nil {
-				return libcnb.BuildResult{}, fmt.Errorf("unable to process mvnw file format %s\n%w", command, err)
-			}
+		if err = b.CleanMvnWrapper(command); err != nil {
+			return libcnb.BuildResult{}, fmt.Errorf("unable to clean mvnw file: %s\n%w", command, err)
 		}
 
 	}
@@ -205,11 +192,23 @@ func contains(strings []string, stringsSearchedAfter []string) bool {
 	return false
 }
 
-// Added to ensure formatting of mvnw file is unix compatible
-func replaceLineEndings(d []byte) []byte {
+func (b Build) CleanMvnWrapper(fileName string) error {
+
+	fileContents, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		return err
+	}
+
+	// the mvnw file can contain Windows CRLF line endings, e.g. from a 'git clone' on windows
+	// we replace these so that the unix container can execute the wrapper successfully
+
 	// replace CRLF with LF
-	d = bytes.Replace(d, []byte{13, 10}, []byte{10}, -1)
-	// replace CF \r with LF
-	d = bytes.Replace(d, []byte{13}, []byte{10}, -1)
-	return d
+	fileContents = bytes.ReplaceAll(fileContents, []byte{13}, []byte{})
+
+	err = ioutil.WriteFile(fileName, fileContents, 0755)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
