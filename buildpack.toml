@@ -55,9 +55,9 @@ build       = true
 [[metadata.dependencies]]
 id      = "maven"
 name    = "Apache Maven"
-version = "3.8.1"
-uri     = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.8.1/apache-maven-3.8.1-bin.tar.gz"
-sha256  = "b98a1905eb554d07427b2e5509ff09bd53e2f1dd7a0afa38384968b113abef02"
+version = "3.8.2"
+uri     = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.8.2/apache-maven-3.8.2-bin.tar.gz"
+sha256  = "8dae10b09feb7b8e4c079fc39a11f3296ab630fd9bc44ecea0fb288cec7770f7"
 stacks  = [ "io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "org.cloudfoundry.stacks.cflinuxfs3" ]
 
   [[metadata.dependencies.licenses]]
