@@ -33,7 +33,7 @@ id = "io.buildpacks.stacks.bionic"
 id = "io.paketo.stacks.tiny"
 
 [[stacks]]
-id = "org.cloudfoundry.stacks.cflinuxfs3"
+id = "*"
 
 [[metadata.configurations]]
 name        = "BP_MAVEN_BUILD_ARGUMENTS"
@@ -58,7 +58,7 @@ name    = "Apache Maven"
 version = "3.8.2"
 uri     = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.8.2/apache-maven-3.8.2-bin.tar.gz"
 sha256  = "8dae10b09feb7b8e4c079fc39a11f3296ab630fd9bc44ecea0fb288cec7770f7"
-stacks  = [ "io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "org.cloudfoundry.stacks.cflinuxfs3" ]
+stacks  = [ "io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*" ]
 
   [[metadata.dependencies.licenses]]
   type = "Apache-2.0"
