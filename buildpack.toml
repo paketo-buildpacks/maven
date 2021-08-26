@@ -44,7 +44,7 @@ build       = true
 [[metadata.configurations]]
 name        = "BP_MAVEN_BUILT_ARTIFACT"
 description = "the built application artifact explicitly.  Supersedes $BP_MAVEN_BUILT_MODULE"
-default     = "target/*.[jw]ar"
+default     = "target/*.[ejw]ar"
 build       = true
 
 [[metadata.configurations]]
