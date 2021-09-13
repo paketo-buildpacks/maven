@@ -18,10 +18,13 @@ package maven
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/buildpacks/libcnb"
+	"github.com/paketo-buildpacks/libpak"
+	"github.com/paketo-buildpacks/libpak/bard"
 )
 
 const (
@@ -33,8 +36,19 @@ const (
 type Detect struct{}
 
 func (Detect) Detect(context libcnb.DetectContext) (libcnb.DetectResult, error) {
-	file := filepath.Join(context.Application.Path, "pom.xml")
-	_, err := os.Stat(file)
+	l := bard.NewLogger(ioutil.Discard)
+	cr, err := libpak.NewConfigurationResolver(context.Buildpack, &l)
+	if err != nil {
+		return libcnb.DetectResult{}, err
+	}
+
+	pomFile, _ := cr.Resolve("BP_MAVEN_POM_FILE")
+	if pomFile == "" {
+		pomFile = "pom.xml"
+	}
+
+	file := filepath.Join(context.Application.Path, pomFile)
+	_, err = os.Stat(file)
 	if os.IsNotExist(err) {
 		return libcnb.DetectResult{Pass: false}, nil
 	} else if err != nil {

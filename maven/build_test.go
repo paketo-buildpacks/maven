@@ -81,6 +81,25 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 
 	})
 
+	context("BP_MAVEN_POM_FILE is set", func() {
+		it.Before(func() {
+			Expect(os.Setenv("BP_MAVEN_POM_FILE", "foo/bar/pom.xml")).To(Succeed())
+		})
+
+		it.After(func() {
+			Expect(os.Unsetenv(("BP_MAVEN_POM_FILE"))).To(Succeed())
+		})
+
+		it("adds the --file argument if set", func() {
+			Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
+
+			result, err := mavenBuild.Build(ctx)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(result.Layers[1].(libbs.Application).Arguments[0:2]).To(Equal([]string{"--file", "foo/bar/pom.xml"}))
+		})
+	})
+
 	context("BP_MAVEN_BUILD_ARGUMENTS includes --batch-mode", func() {
 		it.Before(func() {
 			Expect(os.Setenv("BP_MAVEN_BUILD_ARGUMENTS", "--batch-mode user-provided-argument")).To(Succeed())
