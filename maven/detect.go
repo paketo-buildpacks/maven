@@ -43,10 +43,6 @@ func (Detect) Detect(context libcnb.DetectContext) (libcnb.DetectResult, error) 
 	}
 
 	pomFile, _ := cr.Resolve("BP_MAVEN_POM_FILE")
-	if pomFile == "" {
-		pomFile = "pom.xml"
-	}
-
 	file := filepath.Join(context.Application.Path, pomFile)
 	_, err = os.Stat(file)
 	if os.IsNotExist(err) {
