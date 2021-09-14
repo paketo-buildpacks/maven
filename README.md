@@ -4,7 +4,7 @@ The Paketo Maven Buildpack is a Cloud Native Buildpack that builds Maven-based a
 ## Behavior
 This buildpack will participate all the following conditions are met
 
-* `<APPLICATION_ROOT>/pom.xml` exists
+* `<APPLICATION_ROOT>/pom.xml` exists or `BP_MAVEN_POM_FILE` is set to an existing POM file.
 
 The buildpack will do the following:
 
@@ -16,14 +16,15 @@ The buildpack will do the following:
   * Contributes Maven to a layer with all commands on `$PATH`
   * Runs `<MAVEN_ROOT>/bin/mvn -Dmaven.test.skip=true package` to build the application
 * Removes the source code in `<APPLICATION_ROOT>`
-* Expands `<APPLICATION_ROOT>/target/*.[jw]ar` to `<APPLICATION_ROOT>`
+* Expands `<APPLICATION_ROOT>/target/*.[ejw]ar` to `<APPLICATION_ROOT>`
 
 ## Configuration
 | Environment Variable | Description
 | -------------------- | -----------
 | `$BP_MAVEN_BUILD_ARGUMENTS` | Configure the arguments to pass to Maven.  Defaults to `-Dmaven.test.skip=true package`. `--batch-mode` will be prepended to the argument list in environments without a TTY.
 | `$BP_MAVEN_BUILT_MODULE` | Configure the module to find application artifact in.  Defaults to the root module (empty).
-| `$BP_MAVEN_BUILT_ARTIFACT` | Configure the built application artifact explicitly.  Supersedes `$BP_MAVEN_BUILT_MODULE`  Defaults to `target/*.[jw]ar`.
+| `$BP_MAVEN_BUILT_ARTIFACT` | Configure the built application artifact explicitly.  Supersedes `$BP_MAVEN_BUILT_MODULE`  Defaults to `target/*.[ejw]ar`.
+| `$BP_MAVEN_POM_FILE` | Specifies a custom location to the project's `pom.xml` file. It should be a full path to the file under the `/workspace` directory or it should be relative to the root of the project (i.e. `/workspace'). Defaults to `pom.xml`.
 
 ## Bindings
 The buildpack optionally accepts the following bindings:

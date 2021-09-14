@@ -48,6 +48,13 @@ default     = "target/*.[ejw]ar"
 build       = true
 
 [[metadata.configurations]]
+name        = "BP_MAVEN_POM_FILE"
+description = "the location of the main pom.xml file, relative to the application root"
+default     = "pom.xml"
+detect      = true
+build       = true
+
+[[metadata.configurations]]
 name        = "BP_MAVEN_BUILT_MODULE"
 description = "the module to find application artifact in"
 build       = true

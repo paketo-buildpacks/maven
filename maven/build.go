@@ -105,6 +105,11 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve build arguments\n%w", err)
 	}
 
+	pomFile, userSet := cr.Resolve("BP_MAVEN_POM_FILE")
+	if userSet {
+		args = append([]string{"--file", pomFile}, args...)
+	}
+
 	if !b.TTY && !contains(args, []string{"-B", "--batch-mode"}) {
 		// terminal is not tty, and the user did not set batch mode; let's set it
 		args = append([]string{"--batch-mode"}, args...)

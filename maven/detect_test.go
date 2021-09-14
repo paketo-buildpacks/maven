@@ -49,11 +49,34 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 	})
 
 	it("fails without pom.xml", func() {
+		os.Setenv("BP_MAVEN_POM_FILE", "pom.xml")
 		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{}))
 	})
 
 	it("passes with pom.xml", func() {
 		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "pom.xml"), []byte{}, 0644))
+
+		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{
+			Pass: true,
+			Plans: []libcnb.BuildPlan{
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "jdk"},
+						{Name: "maven"},
+					},
+				},
+			},
+		}))
+	})
+
+	it("passes with a custom pom.xml", func() {
+		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "pom2.xml"), []byte{}, 0644))
+
+		os.Setenv("BP_MAVEN_POM_FILE", "pom2.xml")
 
 		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{
 			Pass: true,
