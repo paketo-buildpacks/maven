@@ -49,8 +49,8 @@ jobs:
                 group_id: org.apache.maven
                 packaging: tar.gz
                 uri: https://repo1.maven.org/maven2
-            - id: buildpack
-              name: Update Buildpack Dependency
+            - name: Update Buildpack Dependency
+              id: buildpack
               run: |
                 #!/usr/bin/env bash
 
