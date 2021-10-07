@@ -15,70 +15,62 @@
 api = "0.6"
 
 [buildpack]
-id       = "paketo-buildpacks/maven"
-name     = "Paketo Maven Buildpack"
-version  = "{{.version}}"
-homepage = "https://github.com/paketo-buildpacks/maven"
-description = "A Cloud Native Buildpack that builds Maven-based applications from source"
-keywords    = ["java", "maven", "build-system"]
+  description = "A Cloud Native Buildpack that builds Maven-based applications from source"
+  homepage = "https://github.com/paketo-buildpacks/maven"
+  id = "paketo-buildpacks/maven"
+  keywords = ["java", "maven", "build-system"]
+  name = "Paketo Maven Buildpack"
+  version = "{{.version}}"
 
-[[buildpack.licenses]]
-type = "Apache-2.0"
-uri  = "https://github.com/paketo-buildpacks/maven/blob/main/LICENSE"
-
-[[stacks]]
-id = "io.buildpacks.stacks.bionic"
-
-[[stacks]]
-id = "io.paketo.stacks.tiny"
-
-[[stacks]]
-id = "*"
-
-[[metadata.configurations]]
-name        = "BP_MAVEN_BUILD_ARGUMENTS"
-description = "the arguments to pass to Maven"
-default     = "-Dmaven.test.skip=true package"
-build       = true
-
-[[metadata.configurations]]
-name        = "BP_MAVEN_BUILT_ARTIFACT"
-description = "the built application artifact explicitly.  Supersedes $BP_MAVEN_BUILT_MODULE"
-default     = "target/*.[ejw]ar"
-build       = true
-
-[[metadata.configurations]]
-name        = "BP_MAVEN_POM_FILE"
-description = "the location of the main pom.xml file, relative to the application root"
-default     = "pom.xml"
-detect      = true
-build       = true
-
-[[metadata.configurations]]
-name        = "BP_MAVEN_BUILT_MODULE"
-description = "the module to find application artifact in"
-build       = true
-
-[[metadata.dependencies]]
-id      = "maven"
-name    = "Apache Maven"
-version = "3.8.3"
-uri     = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.8.3/apache-maven-3.8.3-bin.tar.gz"
-sha256  = "0f1597d11085b8fe93d84652a18c6deea71ece9fabba45a02cf6600c7758fd5b"
-stacks  = [ "io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*" ]
-
-  [[metadata.dependencies.licenses]]
-  type = "Apache-2.0"
-  uri  = "https://www.apache.org/licenses/"
+  [[buildpack.licenses]]
+    type = "Apache-2.0"
+    uri = "https://github.com/paketo-buildpacks/maven/blob/main/LICENSE"
 
 [metadata]
-pre-package   = "scripts/build.sh"
-include-files = [
-  "LICENSE",
-  "NOTICE",
-  "README.md",
-  "bin/build",
-  "bin/detect",
-  "bin/main",
-  "buildpack.toml",
-]
+  include-files = ["LICENSE", "NOTICE", "README.md", "bin/build", "bin/detect", "bin/main", "buildpack.toml"]
+  pre-package = "scripts/build.sh"
+
+  [[metadata.configurations]]
+    build = true
+    default = "-Dmaven.test.skip=true package"
+    description = "the arguments to pass to Maven"
+    name = "BP_MAVEN_BUILD_ARGUMENTS"
+
+  [[metadata.configurations]]
+    build = true
+    default = "target/*.[ejw]ar"
+    description = "the built application artifact explicitly.  Supersedes $BP_MAVEN_BUILT_MODULE"
+    name = "BP_MAVEN_BUILT_ARTIFACT"
+
+  [[metadata.configurations]]
+    build = true
+    default = "pom.xml"
+    description = "the location of the main pom.xml file, relative to the application root"
+    detect = true
+    name = "BP_MAVEN_POM_FILE"
+
+  [[metadata.configurations]]
+    build = true
+    description = "the module to find application artifact in"
+    name = "BP_MAVEN_BUILT_MODULE"
+
+  [[metadata.dependencies]]
+    id = "maven"
+    name = "Apache Maven"
+    sha256 = "0f1597d11085b8fe93d84652a18c6deea71ece9fabba45a02cf6600c7758fd5b"
+    stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
+    uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.8.3/apache-maven-3.8.3-bin.tar.gz"
+    version = "3.8.3"
+
+    [[metadata.dependencies.licenses]]
+      type = "Apache-2.0"
+      uri = "https://www.apache.org/licenses/"
+
+[[stacks]]
+  id = "io.buildpacks.stacks.bionic"
+
+[[stacks]]
+  id = "io.paketo.stacks.tiny"
+
+[[stacks]]
+  id = "*"
