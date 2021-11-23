@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-api = "0.6"
+api = "0.7"
 
 [buildpack]
   description = "A Cloud Native Buildpack that builds Maven-based applications from source"
@@ -21,6 +21,7 @@ api = "0.6"
   keywords = ["java", "maven", "build-system"]
   name = "Paketo Maven Buildpack"
   version = "{{.version}}"
+  sbom-formats = ["application/vnd.cyclonedx+json", "application/vnd.syft+json"]
 
   [[buildpack.licenses]]
     type = "Apache-2.0"
@@ -61,6 +62,10 @@ api = "0.6"
     stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
     uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.8.3/apache-maven-3.8.3-bin.tar.gz"
     version = "3.8.3"
+    purl = "pkg:generic/apache-maven@3.8.3"
+    cpes = [
+      "cpe:2.3:a:apache:maven:3.8.3:*:*:*:*:*:*:*"
+    ]
 
     [[metadata.dependencies.licenses]]
       type = "Apache-2.0"
