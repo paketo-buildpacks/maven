@@ -24,6 +24,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/paketo-buildpacks/libpak/sbom"
+
 	"github.com/buildpacks/libcnb"
 	. "github.com/onsi/gomega"
 	"github.com/paketo-buildpacks/libbs"
@@ -142,7 +144,32 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{"test-argument"}))
 	})
 
-	it("contributes distribution", func() {
+	it("contributes distribution for API 0.7+", func() {
+		ctx.Buildpack.Metadata["dependencies"] = []map[string]interface{}{
+			{
+				"id":      "maven",
+				"version": "1.1.1",
+				"stacks":  []interface{}{"test-stack-id"},
+				"cpes":    []string{"cpe:2.3:a:apache:maven:3.8.3:*:*:*:*:*:*:*"},
+				"purl":    "pkg:generic/apache-maven@3.8.3",
+			},
+		}
+		ctx.StackID = "test-stack-id"
+
+		result, err := mavenBuild.Build(ctx)
+		Expect(err).NotTo(HaveOccurred())
+
+		Expect(result.Layers).To(HaveLen(3))
+		Expect(result.Layers[0].Name()).To(Equal("maven"))
+		Expect(result.Layers[1].Name()).To(Equal("cache"))
+		Expect(result.Layers[2].Name()).To(Equal("application"))
+		Expect(result.Layers[2].(libbs.Application).Command).To(Equal(filepath.Join(ctx.Layers.Path, "maven", "bin", "mvn")))
+		Expect(result.Layers[2].(libbs.Application).Arguments).To(Equal([]string{"test-argument"}))
+
+		Expect(result.BOM.Entries).To(HaveLen(0))
+	})
+
+	it("contributes distribution for API <=0.6", func() {
 		ctx.Buildpack.Metadata["dependencies"] = []map[string]interface{}{
 			{
 				"id":      "maven",
@@ -151,6 +178,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			},
 		}
 		ctx.StackID = "test-stack-id"
+		ctx.Buildpack.API = "0.6"
 
 		result, err := mavenBuild.Build(ctx)
 		Expect(err).NotTo(HaveOccurred())
@@ -322,6 +350,8 @@ func (f *FakeApplicationFactory) NewApplication(
 	_ libbs.Cache,
 	command string,
 	_ *libcnb.BOM,
+	_ string,
+	_ sbom.SBOMScanner,
 	_ string,
 ) (libbs.Application, error) {
 	contributor := libpak.NewLayerContributor(
