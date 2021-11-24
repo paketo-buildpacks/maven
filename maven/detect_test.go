@@ -65,6 +65,7 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 						{Name: "maven"},
 					},
 					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
 						{Name: "jdk"},
 						{Name: "maven"},
 					},
@@ -87,6 +88,7 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 						{Name: "maven"},
 					},
 					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
 						{Name: "jdk"},
 						{Name: "maven"},
 					},

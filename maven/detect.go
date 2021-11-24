@@ -31,6 +31,7 @@ const (
 	PlanEntryMaven                 = "maven"
 	PlanEntryJVMApplicationPackage = "jvm-application-package"
 	PlanEntryJDK                   = "jdk"
+	PlanEntrySyft                  = "syft"
 )
 
 type Detect struct{}
@@ -60,6 +61,7 @@ func (Detect) Detect(context libcnb.DetectContext) (libcnb.DetectResult, error) 
 					{Name: PlanEntryMaven},
 				},
 				Requires: []libcnb.BuildPlanRequire{
+					{Name: PlanEntrySyft},
 					{Name: PlanEntryJDK},
 					{Name: PlanEntryMaven},
 				},
