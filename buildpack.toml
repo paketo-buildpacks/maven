@@ -58,13 +58,13 @@ api = "0.7"
   [[metadata.dependencies]]
     id = "maven"
     name = "Apache Maven"
-    sha256 = "0f1597d11085b8fe93d84652a18c6deea71ece9fabba45a02cf6600c7758fd5b"
+    sha256 = "2cdc9c519427bb20fdc25bef5a9063b790e4abd930e7b14b4e9f4863d6f9f13c"
     stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
-    uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.8.3/apache-maven-3.8.3-bin.tar.gz"
-    version = "3.8.3"
-    purl = "pkg:generic/apache-maven@3.8.3"
+    uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.8.4/apache-maven-3.8.4-bin.tar.gz"
+    version = "3.8.4"
+    purl = "pkg:generic/apache-maven@3.8.4"
     cpes = [
-      "cpe:2.3:a:apache:maven:3.8.3:*:*:*:*:*:*:*"
+      "cpe:2.3:a:apache:maven:3.8.4:*:*:*:*:*:*:*"
     ]
 
     [[metadata.dependencies.licenses]]
