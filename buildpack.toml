@@ -20,8 +20,8 @@ api = "0.7"
   id = "paketo-buildpacks/maven"
   keywords = ["java", "maven", "build-system"]
   name = "Paketo Maven Buildpack"
-  version = "{{.version}}"
   sbom-formats = ["application/vnd.cyclonedx+json", "application/vnd.syft+json"]
+  version = "{{.version}}"
 
   [[buildpack.licenses]]
     type = "Apache-2.0"
@@ -56,16 +56,14 @@ api = "0.7"
     name = "BP_MAVEN_BUILT_MODULE"
 
   [[metadata.dependencies]]
+    cpes = ["cpe:2.3:a:apache:maven:3.8.4:*:*:*:*:*:*:*"]
     id = "maven"
     name = "Apache Maven"
+    purl = "pkg:generic/apache-maven@3.8.4"
     sha256 = "2cdc9c519427bb20fdc25bef5a9063b790e4abd930e7b14b4e9f4863d6f9f13c"
     stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
     uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.8.4/apache-maven-3.8.4-bin.tar.gz"
     version = "3.8.4"
-    purl = "pkg:generic/apache-maven@3.8.4"
-    cpes = [
-      "cpe:2.3:a:apache:maven:3.8.4:*:*:*:*:*:*:*"
-    ]
 
     [[metadata.dependencies.licenses]]
       type = "Apache-2.0"
