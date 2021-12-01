@@ -27,7 +27,7 @@ api = "0.6"
     uri = "https://github.com/paketo-buildpacks/maven/blob/main/LICENSE"
 
 [metadata]
-  include-files = ["LICENSE", "NOTICE", "README.md", "bin/build", "bin/detect", "bin/main", "buildpack.toml"]
+  include-files = ["LICENSE", "NOTICE", "README.md", "bin/build", "bin/detect", "bin/main", "buildpack.toml", "maven/assembly/zip.xml"]
   pre-package = "scripts/build.sh"
 
   [[metadata.configurations]]
@@ -48,6 +48,17 @@ api = "0.6"
     description = "the location of the main pom.xml file, relative to the application root"
     detect = true
     name = "BP_MAVEN_POM_FILE"
+
+  [[metadata.configurations]]
+    build = true
+    description = "enable creating a single distributable archive using the maven assembly plugin, use in conjunction with $BP_MAVEN_BUILT_ARTIFACT_NATIVE_SOURCE"
+    name = "BP_MAVEN_SUPPORT_MULTIPLE_ARTIFACTS"
+
+  [[metadata.configurations]]
+    build = true
+    default = "native-sources"
+    description = "the location of the folder containing all the sources require to create the native image, relative to ${project.build.directory}"
+    name = "BP_MAVEN_BUILT_ARTIFACT_NATIVE_SOURCE"
 
   [[metadata.configurations]]
     build = true

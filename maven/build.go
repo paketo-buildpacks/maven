@@ -105,6 +105,19 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve build arguments\n%w", err)
 	}
 
+	_, supportMultipleArtifacts := cr.Resolve("BP_MAVEN_SUPPORT_MULTIPLE_ARTIFACTS")
+	if supportMultipleArtifacts {
+		err = copyAssemblyDistribution(filepath.Join(context.Buildpack.Path, "maven/assembly"), "zip.xml",
+			context.Application.Path)
+		if err != nil {
+			return  libcnb.BuildResult{}, fmt.Errorf("unable to configure maven assembly plugin to " +
+				"create one distributable archive\n%w", err)
+		}
+		nativeSource, _ := cr.Resolve("BP_MAVEN_BUILT_ARTIFACT_NATIVE_SOURCE")
+		args = append(args, []string{"assembly:single","-Ddescriptor=zip.xml",fmt.Sprintf("-Doutput.folder=%s",
+			nativeSource)}...)
+	}
+
 	pomFile, userSet := cr.Resolve("BP_MAVEN_POM_FILE")
 	if userSet {
 		args = append([]string{"--file", pomFile}, args...)
@@ -215,5 +228,23 @@ func (b Build) CleanMvnWrapper(fileName string) error {
 		return err
 	}
 
+	return nil
+}
+
+func copyAssemblyDistribution(srcPath string, file string, destPath string) error {
+	dist, err := os.Open(filepath.Join(srcPath, file))
+	if err != nil {
+		return fmt.Errorf("unable to open original distribution file\n%w", err)
+	}
+	defer dist.Close()
+	destination, err := os.Create(filepath.Join(destPath, file))
+	if err != nil {
+		return fmt.Errorf("unable to open the destination distribution file\n%w", err)
+	}
+	defer destination.Close()
+	_, err = io.Copy(destination, dist)
+	if err != nil {
+		return  fmt.Errorf("unable to copy file\n%w", err)
+	}
 	return nil
 }
