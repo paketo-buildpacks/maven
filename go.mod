@@ -7,7 +7,7 @@ require (
 	github.com/mattn/go-isatty v0.0.14
 	github.com/onsi/gomega v1.17.0
 	github.com/paketo-buildpacks/libbs v1.10.0
-	github.com/paketo-buildpacks/libpak v1.56.2
+	github.com/paketo-buildpacks/libpak v1.57.0
 	github.com/sclevine/spec v1.4.0
 
 )
