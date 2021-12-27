@@ -26,6 +26,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+	"strings"
 
 	"github.com/paketo-buildpacks/libpak/sbom"
 
@@ -69,31 +70,48 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	}
 	dc.Logger = b.Logger
 
-	command := filepath.Join(context.Application.Path, "mvnw")
-	if _, err := os.Stat(command); os.IsNotExist(err) {
-		dep, err := dr.Resolve("maven", "")
+	command := ""
+	mvndEnabled, _ := cr.Resolve("BP_MAVEN_DAEMON_ENABLED")
+	if strings.ToLower(mvndEnabled) == "true" {
+		dep, err := dr.Resolve("mvnd", "")
 		if err != nil {
 			return libcnb.BuildResult{}, fmt.Errorf("unable to find dependency\n%w", err)
 		}
 
-		dist, be := NewDistribution(dep, dc)
+		dist, be := NewMvndDistribution(dep, dc)
 		dist.Logger = b.Logger
 		result.Layers = append(result.Layers, dist)
 		if be.Name != "" {
 			result.BOM.Entries = append(result.BOM.Entries, be)
 		}
-		command = filepath.Join(context.Layers.Path, dist.Name(), "bin", "mvn")
-	} else if err != nil {
-		return libcnb.BuildResult{}, fmt.Errorf("unable to stat %s\n%w", command, err)
+		command = filepath.Join(context.Layers.Path, dist.Name(), "bin", "mvnd")
 	} else {
-		if err := os.Chmod(command, 0755); err != nil {
-			return libcnb.BuildResult{}, fmt.Errorf("unable to chmod %s\n%w", command, err)
-		}
+		command = filepath.Join(context.Application.Path, "mvnw")
+		if _, err := os.Stat(command); os.IsNotExist(err) {
+			dep, err := dr.Resolve("maven", "")
+			if err != nil {
+				return libcnb.BuildResult{}, fmt.Errorf("unable to find dependency\n%w", err)
+			}
 
-		if err = b.CleanMvnWrapper(command); err != nil {
-			return libcnb.BuildResult{}, fmt.Errorf("unable to clean mvnw file: %s\n%w", command, err)
-		}
+			dist, be := NewDistribution(dep, dc)
+			dist.Logger = b.Logger
+			result.Layers = append(result.Layers, dist)
+			if be.Name != "" {
+				result.BOM.Entries = append(result.BOM.Entries, be)
+			}
+			command = filepath.Join(context.Layers.Path, dist.Name(), "bin", "mvn")
+		} else if err != nil {
+			return libcnb.BuildResult{}, fmt.Errorf("unable to stat %s\n%w", command, err)
+		} else {
+			if err := os.Chmod(command, 0755); err != nil {
+				return libcnb.BuildResult{}, fmt.Errorf("unable to chmod %s\n%w", command, err)
+			}
 
+			if err = b.CleanMvnWrapper(command); err != nil {
+				return libcnb.BuildResult{}, fmt.Errorf("unable to clean mvnw file: %s\n%w", command, err)
+			}
+
+		}
 	}
 
 	u, err := user.Current()
