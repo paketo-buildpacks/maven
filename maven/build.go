@@ -71,8 +71,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	dc.Logger = b.Logger
 
 	command := ""
-	mvndEnabled, _ := cr.Resolve("BP_MAVEN_DAEMON_ENABLED")
-	if strings.ToLower(mvndEnabled) == "true" {
+	if cr.ResolveBool("BP_MAVEN_DAEMON_ENABLED") {
 		dep, err := dr.Resolve("mvnd", "")
 		if err != nil {
 			return libcnb.BuildResult{}, fmt.Errorf("unable to find dependency\n%w", err)
