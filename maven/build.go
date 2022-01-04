@@ -26,7 +26,6 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
-	"strings"
 
 	"github.com/paketo-buildpacks/libpak/sbom"
 
