@@ -25,3 +25,10 @@ dependencies:
     artifact_id: apache-maven
     classifier:  bin
     packaging:   tar.gz
+- id:   mvnd
+  uses: docker://ghcr.io/paketo-buildpacks/actions/github-release-dependency:main
+  with:
+    owner: apache
+    repository: maven-mvnd
+    glob: mvnd-.+-linux-amd64.zip
+    token: ${{ secrets.JAVA_GITHUB_TOKEN }}

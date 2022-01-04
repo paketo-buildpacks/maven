@@ -55,6 +55,12 @@ api = "0.7"
     description = "the module to find application artifact in"
     name = "BP_MAVEN_BUILT_MODULE"
 
+  [[metadata.configurations]]
+    build = true
+    default = "false"
+    description = "use maven daemon"
+    name = "BP_MAVEN_DAEMON_ENABLED"
+
   [[metadata.dependencies]]
     cpes = ["cpe:2.3:a:apache:maven:3.8.4:*:*:*:*:*:*:*"]
     id = "maven"
@@ -64,6 +70,20 @@ api = "0.7"
     stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
     uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.8.4/apache-maven-3.8.4-bin.tar.gz"
     version = "3.8.4"
+
+    [[metadata.dependencies.licenses]]
+      type = "Apache-2.0"
+      uri = "https://www.apache.org/licenses/"
+
+  [[metadata.dependencies]]
+    cpes = ["cpe:2.3:a:apache:mvnd:0.7.1:*:*:*:*:*:*:*"]
+    id = "mvnd"
+    name = "Apache Maven Daemon"
+    purl = "pkg:generic/apache-mvnd@0.7.1"
+    sha256 = "ac0b276d4d7472d042ddaf3ad46170e5fcb9350981af91af6c5c13e602a07393"
+    stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
+    uri = "https://github.com/apache/maven-mvnd/releases/download/0.7.1/mvnd-0.7.1-linux-amd64.zip"
+    version = "0.7.1"
 
     [[metadata.dependencies.licenses]]
       type = "Apache-2.0"
