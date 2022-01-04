@@ -83,6 +83,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 		if be.Name != "" {
 			result.BOM.Entries = append(result.BOM.Entries, be)
 		}
+
 		command = filepath.Join(context.Layers.Path, dist.Name(), "bin", "mvnd")
 	} else {
 		command = filepath.Join(context.Application.Path, "mvnw")
