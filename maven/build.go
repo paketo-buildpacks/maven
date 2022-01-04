@@ -110,7 +110,6 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 			if err = b.CleanMvnWrapper(command); err != nil {
 				return libcnb.BuildResult{}, fmt.Errorf("unable to clean mvnw file: %s\n%w", command, err)
 			}
-
 		}
 	}
 
