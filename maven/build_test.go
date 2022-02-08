@@ -166,7 +166,10 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(result.Layers[2].(libbs.Application).Command).To(Equal(filepath.Join(ctx.Layers.Path, "maven", "bin", "mvn")))
 		Expect(result.Layers[2].(libbs.Application).Arguments).To(Equal([]string{"test-argument"}))
 
-		Expect(result.BOM.Entries).To(HaveLen(0))
+		Expect(result.BOM.Entries).To(HaveLen(1))
+		Expect(result.BOM.Entries[0].Name).To(Equal("maven"))
+		Expect(result.BOM.Entries[0].Build).To(BeTrue())
+		Expect(result.BOM.Entries[0].Launch).To(BeFalse())
 	})
 
 	it("contributes distribution for API <=0.6", func() {
@@ -227,7 +230,10 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			Expect(result.Layers[2].(libbs.Application).Command).To(Equal(filepath.Join(ctx.Layers.Path, "mvnd", "bin", "mvnd")))
 			Expect(result.Layers[2].(libbs.Application).Arguments).To(Equal([]string{"test-argument"}))
 
-			Expect(result.BOM.Entries).To(HaveLen(0))
+			Expect(result.BOM.Entries).To(HaveLen(1))
+			Expect(result.BOM.Entries[0].Name).To(Equal("mvnd"))
+			Expect(result.BOM.Entries[0].Build).To(BeTrue())
+			Expect(result.BOM.Entries[0].Launch).To(BeFalse())
 		})
 
 		it("contributes mvnd distribution for API <=0.6", func() {
@@ -414,7 +420,6 @@ func (f *FakeApplicationFactory) NewApplication(
 	_ *libcnb.BOM,
 	_ string,
 	_ sbom.SBOMScanner,
-	_ string,
 ) (libbs.Application, error) {
 	contributor := libpak.NewLayerContributor(
 		"Compiled Application",

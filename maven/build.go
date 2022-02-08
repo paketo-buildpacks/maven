@@ -46,7 +46,7 @@ type Build struct {
 
 type ApplicationFactory interface {
 	NewApplication(additionalMetadata map[string]interface{}, arguments []string, artifactResolver libbs.ArtifactResolver,
-		cache libbs.Cache, command string, bom *libcnb.BOM, applicationPath string, bomScanner sbom.SBOMScanner, buildpackAPI string) (libbs.Application, error)
+		cache libbs.Cache, command string, bom *libcnb.BOM, applicationPath string, bomScanner sbom.SBOMScanner) (libbs.Application, error)
 }
 
 func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
@@ -79,9 +79,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 		dist, be := NewMvndDistribution(dep, dc)
 		dist.Logger = b.Logger
 		result.Layers = append(result.Layers, dist)
-		if be.Name != "" {
-			result.BOM.Entries = append(result.BOM.Entries, be)
-		}
+		result.BOM.Entries = append(result.BOM.Entries, be)
 
 		command = filepath.Join(context.Layers.Path, dist.Name(), "bin", "mvnd")
 	} else {
@@ -95,9 +93,8 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 			dist, be := NewDistribution(dep, dc)
 			dist.Logger = b.Logger
 			result.Layers = append(result.Layers, dist)
-			if be.Name != "" {
-				result.BOM.Entries = append(result.BOM.Entries, be)
-			}
+			result.BOM.Entries = append(result.BOM.Entries, be)
+
 			command = filepath.Join(context.Layers.Path, dist.Name(), "bin", "mvn")
 		} else if err != nil {
 			return libcnb.BuildResult{}, fmt.Errorf("unable to stat %s\n%w", command, err)
@@ -164,7 +161,6 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 		result.BOM,
 		context.Application.Path,
 		bomScanner,
-		context.Buildpack.API,
 	)
 	if err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to create application layer\n%w", err)
