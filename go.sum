@@ -62,8 +62,8 @@ github.com/onsi/gomega v1.10.1/go.mod h1:iN09h71vgCQne3DLsj+A5owkum+a2tYe+TOCB1y
 github.com/onsi/gomega v1.17.0/go.mod h1:HnhC7FXeEQY45zxNK3PPoIUhzk/80Xly9PcubAlGdZY=
 github.com/onsi/gomega v1.18.1 h1:M1GfJqGRrBrrGGsbxzV5dqM2U2ApXefZCQpkukxYRLE=
 github.com/onsi/gomega v1.18.1/go.mod h1:0q+aL8jAiMXy9hbwj2mr5GziHiwhAIQpFmmtT5hitRs=
-github.com/paketo-buildpacks/libbs v1.12.0 h1:xlgS+URnb63RMVfarYFdd+2lMpcD84enIXT+/2zOzpw=
-github.com/paketo-buildpacks/libbs v1.12.0/go.mod h1:0ny1fFnKX2I12ibXtDLvLtP+wHuOfY2sv+7rghq7QY4=
+github.com/paketo-buildpacks/libbs v1.13.0 h1:NCbuYCJG8vjpYdTnajZcvTbvRbkO6rpjuSmAyKT6wZc=
+github.com/paketo-buildpacks/libbs v1.13.0/go.mod h1:0ny1fFnKX2I12ibXtDLvLtP+wHuOfY2sv+7rghq7QY4=
 github.com/paketo-buildpacks/libjvm v1.35.0 h1:sWIt5sSTDYsh3gwKGKdlLjpvZQDzdemWLTqNcEQUiRM=
 github.com/paketo-buildpacks/libjvm v1.35.0/go.mod h1:pPfaz2cjwWKfUDrC1oYYNp1jNKm9a+gEVmUNH2vU0h0=
 github.com/paketo-buildpacks/libpak v1.58.0 h1:tId115h3SZn8IY8DQxRF36PwhMob4G9TVkWWDTD9MKY=
