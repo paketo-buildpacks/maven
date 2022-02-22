@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-GOOS="linux" go build -ldflags='-s -w' -tags osusergo -o bin/main github.com/paketo-buildpacks/maven/cmd/main
+GOOS="linux" go build -ldflags='-s -w' -tags osusergo -o bin/main github.com/paketo-buildpacks/maven/v6/cmd/main
 
 if [ "${STRIP:-false}" != "false" ]; then
   strip bin/main

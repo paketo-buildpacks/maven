@@ -24,7 +24,7 @@ import (
 	"github.com/paketo-buildpacks/libpak"
 	"github.com/paketo-buildpacks/libpak/bard"
 
-	"github.com/paketo-buildpacks/maven/maven"
+	"github.com/paketo-buildpacks/maven/v6/maven"
 )
 
 func main() {
