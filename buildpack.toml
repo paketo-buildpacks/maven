@@ -33,7 +33,7 @@ api = "0.7"
 
   [[metadata.configurations]]
     build = true
-    default = "-Dmaven.test.skip=true package"
+    default = "-Dmaven.test.skip=true --no-transfer-progress package"
     description = "the arguments to pass to Maven"
     name = "BP_MAVEN_BUILD_ARGUMENTS"
 

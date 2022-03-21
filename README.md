@@ -13,10 +13,10 @@ The buildpack will do the following:
 * Requests that a JDK be installed
 * Links the `~/.m2` to a layer for caching
 * If `<APPLICATION_ROOT>/mvnw` exists
-  * Runs `<APPLICATION_ROOT>/mvnw -Dmaven.test.skip=true package` to build the application
+  * Runs `<APPLICATION_ROOT>/mvnw -Dmaven.test.skip=true --no-transfer-progress package` to build the application
 * If `<APPLICATION_ROOT>/mvnw` does not exist
   * Contributes Maven to a layer with all commands on `$PATH`
-  * Runs `<MAVEN_ROOT>/bin/mvn -Dmaven.test.skip=true package` to build the application
+  * Runs `<MAVEN_ROOT>/bin/mvn -Dmaven.test.skip=true --no-transfer-progress package` to build the application
   * Caches `$BP_MAVEN_BUILT_ARTIFACT` to a layer
 * Removes the source code in `<APPLICATION_ROOT>`
 * If `$BP_MAVEN_BUILT_ARTIFACT` matched a single file
@@ -28,7 +28,7 @@ The buildpack will do the following:
 
 | Environment Variable        | Description                                                                                                                                                                                                                        |
 | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `$BP_MAVEN_BUILD_ARGUMENTS` | Configure the arguments to pass to Maven.  Defaults to `-Dmaven.test.skip=true package`. `--batch-mode` will be prepended to the argument list in environments without a TTY.                                                      |
+| `$BP_MAVEN_BUILD_ARGUMENTS` | Configure the arguments to pass to Maven.  Defaults to `-Dmaven.test.skip=true --no-transfer-progress package`. `--batch-mode` will be prepended to the argument list in environments without a TTY.                               |
 | `$BP_MAVEN_BUILT_MODULE`    | Configure the module to find application artifact in.  Defaults to the root module (empty).                                                                                                                                        |
 | `$BP_MAVEN_BUILT_ARTIFACT`  | Configure the built application artifact explicitly.  Supersedes `$BP_MAVEN_BUILT_MODULE`  Defaults to `target/*.[ejw]ar`. Can match a single file, multiple files or a directory. Can be one or more space separated patterns.    |
 | `$BP_MAVEN_POM_FILE`        | Specifies a custom location to the project's `pom.xml` file. It should be a full path to the file under the `/workspace` directory or it should be relative to the root of the project (i.e. `/workspace'). Defaults to `pom.xml`. |
