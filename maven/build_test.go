@@ -18,6 +18,7 @@ package maven_test
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -39,8 +40,9 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 	var (
 		Expect = NewWithT(t).Expect
 
-		ctx        libcnb.BuildContext
-		mavenBuild maven.Build
+		ctx          libcnb.BuildContext
+		mavenBuild   maven.Build
+		mvnwFilepath string
 	)
 
 	it.Before(func() {
@@ -61,6 +63,8 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			ApplicationFactory: &FakeApplicationFactory{},
 			TTY:                true,
 		}
+
+		mvnwFilepath = filepath.Join(ctx.Application.Path, "mvnw")
 	})
 
 	it.After(func() {
@@ -69,7 +73,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 	})
 
 	it("adds --batch-mode if terminal is not tty and the user did not specify it", func() {
-		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
+		Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
 		ctx.StackID = "test-stack-id"
 		mavenBuild.TTY = false
 
@@ -93,7 +97,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		})
 
 		it("adds the --file argument if set", func() {
-			Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
+			Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
 
 			result, err := mavenBuild.Build(ctx)
 			Expect(err).NotTo(HaveOccurred())
@@ -112,7 +116,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		})
 
 		it("does not add --batch-mode a second time if terminal is not tty and the user already specified it", func() {
-			Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
+			Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
 			ctx.StackID = "test-stack-id"
 			mavenBuild.TTY = false
 
@@ -127,21 +131,51 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 	})
 
 	it("does not contribute distribution if wrapper exists", func() {
-		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
+		Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
 		ctx.StackID = "test-stack-id"
 
 		result, err := mavenBuild.Build(ctx)
 		Expect(err).NotTo(HaveOccurred())
 
-		fi, err := os.Stat(filepath.Join(ctx.Application.Path, "mvnw"))
+		_, err = os.Stat(mvnwFilepath)
 		Expect(err).NotTo(HaveOccurred())
-		Expect(fi.Mode()).To(BeEquivalentTo(0755))
 
 		Expect(result.Layers).To(HaveLen(2))
 		Expect(result.Layers[0].Name()).To(Equal("cache"))
 		Expect(result.Layers[1].Name()).To(Equal("application"))
-		Expect(result.Layers[1].(libbs.Application).Command).To(Equal(filepath.Join(ctx.Application.Path, "mvnw")))
+		Expect(result.Layers[1].(libbs.Application).Command).To(Equal(mvnwFilepath))
 		Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{"test-argument"}))
+	})
+
+	it("makes sure that mvnw is executable", func() {
+		Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
+		ctx.StackID = "test-stack-id"
+
+		_, err := mavenBuild.Build(ctx)
+		Expect(err).NotTo(HaveOccurred())
+
+		fi, err := os.Stat(mvnwFilepath)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(fi.Mode()).To(BeEquivalentTo(0755))
+	})
+
+	it("proceeds without error if mvnw could not have been made executable", func() {
+		if _, err := os.Stat("/dev/null"); errors.Is(err, os.ErrNotExist) {
+			t.Skip("No /dev/null thus not a unix system. Skipping chmod test.")
+		}
+		Expect(os.Symlink("/dev/null", mvnwFilepath)).To(Succeed())
+		fi, err := os.Stat(mvnwFilepath)
+		Expect(err).NotTo(HaveOccurred())
+		originalMode := fi.Mode()
+		Expect(originalMode).ToNot(BeEquivalentTo(0755))
+		ctx.StackID = "test-stack-id"
+
+		_, err = mavenBuild.Build(ctx)
+		Expect(err).NotTo(HaveOccurred())
+
+		fi, err = os.Stat(mvnwFilepath)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(fi.Mode()).To(BeEquivalentTo(originalMode))
 	})
 
 	it("contributes distribution for API 0.7+", func() {
@@ -271,7 +305,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			var err error
 			ctx.StackID = "test-stack-id"
 			ctx.Platform.Path, err = ioutil.TempDir("", "maven-test-platform")
-			Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
+			Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
 			ctx.Platform.Bindings = libcnb.Bindings{
 				{
 					Name:   "some-maven",
@@ -322,7 +356,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			var err error
 			ctx.StackID = "test-stack-id"
 			ctx.Platform.Path, err = ioutil.TempDir("", "maven-test-platform")
-			Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte{}, 0644)).To(Succeed())
+			Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
 			ctx.Platform.Bindings = libcnb.Bindings{
 				{
 					Name: "some-maven",
@@ -383,29 +417,36 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 	})
 
 	it("converts CRLF formatting in the mvnw file to LF (unix) if present", func() {
-		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte("test\r\n"), 0644)).To(Succeed())
+		Expect(ioutil.WriteFile(mvnwFilepath, []byte("test\r\n"), 0644)).To(Succeed())
 		ctx.StackID = "test-stack-id"
 
-		err := mavenBuild.CleanMvnWrapper(filepath.Join(ctx.Application.Path, "mvnw"))
+		err := mavenBuild.CleanMvnWrapper(mvnwFilepath)
 		Expect(err).NotTo(HaveOccurred())
 
-		contents, err := ioutil.ReadFile(filepath.Join(ctx.Application.Path, "mvnw"))
+		contents, err := ioutil.ReadFile(mvnwFilepath)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(bytes.Compare(contents, []byte("test\n"))).To(Equal(0))
 
 	})
 
-	it("Does not perform format conversion in the mvnw file if not required", func() {
-		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "mvnw"), []byte("test\n"), 0644)).To(Succeed())
+	it("does not perform format conversion in the mvnw file if not required", func() {
+		Expect(ioutil.WriteFile(mvnwFilepath, []byte("test\n"), 0644)).To(Succeed())
 		ctx.StackID = "test-stack-id"
 
-		err := mavenBuild.CleanMvnWrapper(filepath.Join(ctx.Application.Path, "mvnw"))
+		err := mavenBuild.CleanMvnWrapper(mvnwFilepath)
 		Expect(err).NotTo(HaveOccurred())
 
-		contents, err := ioutil.ReadFile(filepath.Join(ctx.Application.Path, "mvnw"))
+		contents, err := ioutil.ReadFile(mvnwFilepath)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(bytes.Compare(contents, []byte("test\n"))).To(Equal(0))
+	})
 
+	it("proceeds without error if format conversion wasn't possible", func() {
+		Expect(ioutil.WriteFile(mvnwFilepath, []byte("test\r\n"), 0444)).To(Succeed())
+		ctx.StackID = "test-stack-id"
+
+		_, err := mavenBuild.Build(ctx)
+		Expect(err).NotTo(HaveOccurred())
 	})
 }
 
