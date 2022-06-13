@@ -62,14 +62,14 @@ api = "0.7"
     name = "BP_MAVEN_DAEMON_ENABLED"
 
   [[metadata.dependencies]]
-    cpes = ["cpe:2.3:a:apache:maven:3.8.5:*:*:*:*:*:*:*"]
+    cpes = ["cpe:2.3:a:apache:maven:3.8.6:*:*:*:*:*:*:*"]
     id = "maven"
     name = "Apache Maven"
-    purl = "pkg:generic/apache-maven@3.8.5"
-    sha256 = "88e30700f32a3f60e0d28d0f12a3525d29b7c20c72d130153df5b5d6d890c673"
+    purl = "pkg:generic/apache-maven@3.8.6"
+    sha256 = "c7047a48deb626abf26f71ab3643d296db9b1e67f1faa7d988637deac876b5a9"
     stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
-    uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.8.5/apache-maven-3.8.5-bin.tar.gz"
-    version = "3.8.5"
+    uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.8.6/apache-maven-3.8.6-bin.tar.gz"
+    version = "3.8.6"
 
     [[metadata.dependencies.licenses]]
       type = "Apache-2.0"
