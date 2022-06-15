@@ -100,11 +100,11 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 			return libcnb.BuildResult{}, fmt.Errorf("unable to stat %s\n%w", command, err)
 		} else {
 			if err := os.Chmod(command, 0755); err != nil {
-				fmt.Printf("WARNING: unable to chmod %s:\n%s", command, err)
+				b.Logger.Bodyf("WARNING: unable to chmod %s:\n%s", command, err)
 			}
 
 			if err = b.CleanMvnWrapper(command); err != nil {
-				fmt.Printf("WARNING: unable to clean mvnw file: %s\n%s", command, err)
+				b.Logger.Bodyf("WARNING: unable to clean mvnw file: %s\n%s", command, err)
 			}
 		}
 	}
