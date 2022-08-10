@@ -33,6 +33,7 @@ type MvndDistribution struct {
 
 func NewMvndDistribution(dependency libpak.BuildpackDependency, cache libpak.DependencyCache) (MvndDistribution, libcnb.BOMEntry) {
 	contributor, entry := libpak.NewDependencyLayer(dependency, cache, libcnb.LayerTypes{
+		Build: true,
 		Cache: true,
 	})
 	return MvndDistribution{LayerContributor: contributor}, entry

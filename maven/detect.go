@@ -32,6 +32,7 @@ const (
 	PlanEntryJVMApplicationPackage = "jvm-application-package"
 	PlanEntryJDK                   = "jdk"
 	PlanEntrySyft                  = "syft"
+	BpMavenCommand                 = "BP_MAVEN_COMMAND"
 )
 
 type Detect struct{}
@@ -43,16 +44,7 @@ func (Detect) Detect(context libcnb.DetectContext) (libcnb.DetectResult, error) 
 		return libcnb.DetectResult{}, err
 	}
 
-	pomFile, _ := cr.Resolve("BP_MAVEN_POM_FILE")
-	file := filepath.Join(context.Application.Path, pomFile)
-	_, err = os.Stat(file)
-	if os.IsNotExist(err) {
-		return libcnb.DetectResult{Pass: false}, nil
-	} else if err != nil {
-		return libcnb.DetectResult{}, fmt.Errorf("unable to determine if %s exists\n%w", file, err)
-	}
-
-	return libcnb.DetectResult{
+	result := libcnb.DetectResult{
 		Pass: true,
 		Plans: []libcnb.BuildPlan{
 			{
@@ -67,5 +59,20 @@ func (Detect) Detect(context libcnb.DetectContext) (libcnb.DetectResult, error) 
 				},
 			},
 		},
-	}, nil
+	}
+
+	if binary, _ := cr.Resolve(BpMavenCommand); binary == "mvn" || binary == "mvnd" {
+		return result, nil
+	}
+
+	pomFile, _ := cr.Resolve("BP_MAVEN_POM_FILE")
+	file := filepath.Join(context.Application.Path, pomFile)
+	_, err = os.Stat(file)
+	if os.IsNotExist(err) {
+		return libcnb.DetectResult{Pass: false}, nil
+	} else if err != nil {
+		return libcnb.DetectResult{}, fmt.Errorf("unable to determine if %s exists\n%w", file, err)
+	}
+
+	return result, nil
 }

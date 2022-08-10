@@ -33,6 +33,7 @@ type Distribution struct {
 
 func NewDistribution(dependency libpak.BuildpackDependency, cache libpak.DependencyCache) (Distribution, libcnb.BOMEntry) {
 	contributor, entry := libpak.NewDependencyLayer(dependency, cache, libcnb.LayerTypes{
+		Build: true,
 		Cache: true,
 	})
 	return Distribution{LayerContributor: contributor}, entry

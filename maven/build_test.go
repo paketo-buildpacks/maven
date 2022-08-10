@@ -448,6 +448,67 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		_, err := mavenBuild.Build(ctx)
 		Expect(err).NotTo(HaveOccurred())
 	})
+
+	context("distribute binaries only", func() {
+		it.Before(func() {
+			entry := libcnb.BuildpackPlanEntry{
+				Name: maven.PlanEntryMaven,
+				Metadata: map[string]interface{}{
+					maven.RunBuild: false,
+				},
+			}
+			ctx.Plan.Entries = append(ctx.Plan.Entries, entry)
+		})
+
+		it("contributes distribution for API 0.7+", func() {
+			ctx.Buildpack.Metadata["dependencies"] = []map[string]interface{}{
+				{
+					"id":      "maven",
+					"version": "1.1.1",
+					"stacks":  []interface{}{"test-stack-id"},
+					"cpes":    []string{"cpe:2.3:a:apache:maven:3.8.3:*:*:*:*:*:*:*"},
+					"purl":    "pkg:generic/apache-maven@3.8.3",
+				},
+			}
+			ctx.StackID = "test-stack-id"
+
+			result, err := mavenBuild.Build(ctx)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(result.Layers).To(HaveLen(2))
+			Expect(result.Layers[0].Name()).To(Equal("maven"))
+			Expect(result.Layers[1].Name()).To(Equal("cache"))
+
+			Expect(result.BOM.Entries).To(HaveLen(1))
+			Expect(result.BOM.Entries[0].Name).To(Equal("maven"))
+			Expect(result.BOM.Entries[0].Build).To(BeTrue())
+			Expect(result.BOM.Entries[0].Launch).To(BeFalse())
+		})
+
+		it("contributes distribution for API <=0.6", func() {
+			ctx.Buildpack.Metadata["dependencies"] = []map[string]interface{}{
+				{
+					"id":      "maven",
+					"version": "1.1.1",
+					"stacks":  []interface{}{"test-stack-id"},
+				},
+			}
+			ctx.StackID = "test-stack-id"
+			ctx.Buildpack.API = "0.6"
+
+			result, err := mavenBuild.Build(ctx)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(result.Layers).To(HaveLen(2))
+			Expect(result.Layers[0].Name()).To(Equal("maven"))
+			Expect(result.Layers[1].Name()).To(Equal("cache"))
+
+			Expect(result.BOM.Entries).To(HaveLen(1))
+			Expect(result.BOM.Entries[0].Name).To(Equal("maven"))
+			Expect(result.BOM.Entries[0].Build).To(BeTrue())
+			Expect(result.BOM.Entries[0].Launch).To(BeFalse())
+		})
+	})
 }
 
 type FakeApplicationFactory struct{}

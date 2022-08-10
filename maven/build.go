@@ -38,6 +38,10 @@ import (
 	"github.com/paketo-buildpacks/libpak/bindings"
 )
 
+const (
+	RunBuild = "RunBuild"
+)
+
 type Build struct {
 	Logger             bard.Logger
 	ApplicationFactory ApplicationFactory
@@ -69,8 +73,20 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	}
 	dc.Logger = b.Logger
 
+	pr := libpak.PlanEntryResolver{
+		Plan: context.Plan,
+	}
+	runBuild := true
+	entry, ok, err := pr.Resolve(PlanEntryMaven)
+	if ok && err == nil {
+		if runBuildValue, ok := entry.Metadata[RunBuild].(bool); ok {
+			runBuild = runBuildValue
+		}
+	}
+
+	bpMavenCommand, _ := cr.Resolve(BpMavenCommand)
 	command := ""
-	if cr.ResolveBool("BP_MAVEN_DAEMON_ENABLED") {
+	if cr.ResolveBool("BP_MAVEN_DAEMON_ENABLED") || bpMavenCommand == "mvnd" {
 		dep, err := dr.Resolve("mvnd", "")
 		if err != nil {
 			return libcnb.BuildResult{}, fmt.Errorf("unable to find dependency\n%w", err)
@@ -84,7 +100,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 		command = filepath.Join(context.Layers.Path, dist.Name(), "bin", "mvnd")
 	} else {
 		command = filepath.Join(context.Application.Path, "mvnw")
-		if _, err := os.Stat(command); os.IsNotExist(err) {
+		if _, err := os.Stat(command); os.IsNotExist(err) || bpMavenCommand == "mvn" {
 			dep, err := dr.Resolve("maven", "")
 			if err != nil {
 				return libcnb.BuildResult{}, fmt.Errorf("unable to find dependency\n%w", err)
@@ -118,57 +134,58 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	c.Logger = b.Logger
 	result.Layers = append(result.Layers, c)
 
-	args, err := libbs.ResolveArguments("BP_MAVEN_BUILD_ARGUMENTS", cr)
-	if err != nil {
-		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve build arguments\n%w", err)
-	}
-
-	pomFile, userSet := cr.Resolve("BP_MAVEN_POM_FILE")
-	if userSet {
-		args = append([]string{"--file", pomFile}, args...)
-	}
-
-	if !b.TTY && !contains(args, []string{"-B", "--batch-mode"}) {
-		// terminal is not tty, and the user did not set batch mode; let's set it
-		args = append([]string{"--batch-mode"}, args...)
-	}
-
-	md := map[string]interface{}{}
-	if binding, ok, err := bindings.ResolveOne(context.Platform.Bindings, bindings.OfType("maven")); err != nil {
-		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve binding\n%w", err)
-	} else if ok {
-		args, err = handleMavenSettings(binding, args, md)
+	if runBuild {
+		args, err := libbs.ResolveArguments("BP_MAVEN_BUILD_ARGUMENTS", cr)
 		if err != nil {
-			return libcnb.BuildResult{}, fmt.Errorf("unable to process maven settings from binding\n%w", err)
+			return libcnb.BuildResult{}, fmt.Errorf("unable to resolve build arguments\n%w", err)
 		}
+
+		pomFile, userSet := cr.Resolve("BP_MAVEN_POM_FILE")
+		if userSet {
+			args = append([]string{"--file", pomFile}, args...)
+		}
+
+		if !b.TTY && !contains(args, []string{"-B", "--batch-mode"}) {
+			// terminal is not tty, and the user did not set batch mode; let's set it
+			args = append([]string{"--batch-mode"}, args...)
+		}
+
+		md := map[string]interface{}{}
+		if binding, ok, err := bindings.ResolveOne(context.Platform.Bindings, bindings.OfType("maven")); err != nil {
+			return libcnb.BuildResult{}, fmt.Errorf("unable to resolve binding\n%w", err)
+		} else if ok {
+			args, err = handleMavenSettings(binding, args, md)
+			if err != nil {
+				return libcnb.BuildResult{}, fmt.Errorf("unable to process maven settings from binding\n%w", err)
+			}
+		}
+
+		art := libbs.ArtifactResolver{
+			ArtifactConfigurationKey: "BP_MAVEN_BUILT_ARTIFACT",
+			ConfigurationResolver:    cr,
+			ModuleConfigurationKey:   "BP_MAVEN_BUILT_MODULE",
+			InterestingFileDetector:  libbs.JARInterestingFileDetector{},
+		}
+
+		bomScanner := sbom.NewSyftCLISBOMScanner(context.Layers, effect.NewExecutor(), b.Logger)
+
+		a, err := b.ApplicationFactory.NewApplication(
+			md,
+			args,
+			art,
+			c,
+			command,
+			result.BOM,
+			context.Application.Path,
+			bomScanner,
+		)
+		if err != nil {
+			return libcnb.BuildResult{}, fmt.Errorf("unable to create application layer\n%w", err)
+		}
+
+		a.Logger = b.Logger
+		result.Layers = append(result.Layers, a)
 	}
-
-	art := libbs.ArtifactResolver{
-		ArtifactConfigurationKey: "BP_MAVEN_BUILT_ARTIFACT",
-		ConfigurationResolver:    cr,
-		ModuleConfigurationKey:   "BP_MAVEN_BUILT_MODULE",
-		InterestingFileDetector:  libbs.JARInterestingFileDetector{},
-	}
-
-	bomScanner := sbom.NewSyftCLISBOMScanner(context.Layers, effect.NewExecutor(), b.Logger)
-
-	a, err := b.ApplicationFactory.NewApplication(
-		md,
-		args,
-		art,
-		c,
-		command,
-		result.BOM,
-		context.Application.Path,
-		bomScanner,
-	)
-	if err != nil {
-		return libcnb.BuildResult{}, fmt.Errorf("unable to create application layer\n%w", err)
-	}
-
-	a.Logger = b.Logger
-	result.Layers = append(result.Layers, a)
-
 	return result, nil
 }
 
