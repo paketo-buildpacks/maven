@@ -458,6 +458,12 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 				},
 			}
 			ctx.Plan.Entries = append(ctx.Plan.Entries, entry)
+			os.Setenv("BP_MAVEN_COMMAND", "mvn")
+		})
+
+		it.After(func() {
+			os.Unsetenv("BP_MAVEN_COMMAND")
+			_, ctx.Plan.Entries = ctx.Plan.Entries[len(ctx.Plan.Entries)-1], ctx.Plan.Entries[:len(ctx.Plan.Entries)-1]
 		})
 
 		it("contributes distribution for API 0.7+", func() {
@@ -507,6 +513,95 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			Expect(result.BOM.Entries[0].Name).To(Equal("maven"))
 			Expect(result.BOM.Entries[0].Build).To(BeTrue())
 			Expect(result.BOM.Entries[0].Launch).To(BeFalse())
+		})
+	})
+
+	context("distribute binary build with another", func() {
+		it.Before(func() {
+			entry := libcnb.BuildpackPlanEntry{
+				Name: maven.PlanEntryMaven,
+				Metadata: map[string]interface{}{
+					maven.RunBuild: true,
+				},
+			}
+			ctx.Plan.Entries = append(ctx.Plan.Entries, entry)
+			os.Setenv("BP_MAVEN_COMMAND", "mvn")
+			os.Setenv("BP_MAVEN_DAEMON_ENABLED", "1")
+		})
+
+		it.After(func() {
+			os.Unsetenv("BP_MAVEN_COMMAND")
+			os.Unsetenv("BP_MAVEN_DAEMON_ENABLED")
+			_, ctx.Plan.Entries = ctx.Plan.Entries[len(ctx.Plan.Entries)-1], ctx.Plan.Entries[:len(ctx.Plan.Entries)-1]
+		})
+
+		it("contributes distribution for API 0.7+", func() {
+			ctx.Buildpack.Metadata["dependencies"] = []map[string]interface{}{
+				{
+					"id":      "maven",
+					"version": "1.1.1",
+					"stacks":  []interface{}{"test-stack-id"},
+					"cpes":    []string{"cpe:2.3:a:apache:maven:3.8.3:*:*:*:*:*:*:*"},
+					"purl":    "pkg:generic/apache-maven@3.8.3",
+				},
+				{
+					"id":      "mvnd",
+					"version": "1.1.1",
+					"stacks":  []interface{}{"test-stack-id"},
+				},
+			}
+			ctx.StackID = "test-stack-id"
+
+			result, err := mavenBuild.Build(ctx)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(result.Layers).To(HaveLen(4))
+			Expect(result.Layers[0].Name()).To(Equal("maven"))
+			Expect(result.Layers[1].Name()).To(Equal("mvnd"))
+			Expect(result.Layers[2].Name()).To(Equal("cache"))
+			Expect(result.Layers[3].Name()).To(Equal("application"))
+
+			Expect(result.BOM.Entries).To(HaveLen(2))
+			Expect(result.BOM.Entries[0].Name).To(Equal("maven"))
+			Expect(result.BOM.Entries[0].Build).To(BeTrue())
+			Expect(result.BOM.Entries[0].Launch).To(BeFalse())
+			Expect(result.BOM.Entries[1].Name).To(Equal("mvnd"))
+			Expect(result.BOM.Entries[1].Build).To(BeTrue())
+			Expect(result.BOM.Entries[1].Launch).To(BeFalse())
+		})
+
+		it("contributes distribution for API <=0.6", func() {
+			ctx.Buildpack.Metadata["dependencies"] = []map[string]interface{}{
+				{
+					"id":      "maven",
+					"version": "1.1.1",
+					"stacks":  []interface{}{"test-stack-id"},
+				},
+				{
+					"id":      "mvnd",
+					"version": "1.1.1",
+					"stacks":  []interface{}{"test-stack-id"},
+				},
+			}
+			ctx.StackID = "test-stack-id"
+			ctx.Buildpack.API = "0.6"
+
+			result, err := mavenBuild.Build(ctx)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(result.Layers).To(HaveLen(4))
+			Expect(result.Layers[0].Name()).To(Equal("maven"))
+			Expect(result.Layers[1].Name()).To(Equal("mvnd"))
+			Expect(result.Layers[2].Name()).To(Equal("cache"))
+			Expect(result.Layers[3].Name()).To(Equal("application"))
+
+			Expect(result.BOM.Entries).To(HaveLen(2))
+			Expect(result.BOM.Entries[0].Name).To(Equal("maven"))
+			Expect(result.BOM.Entries[0].Build).To(BeTrue())
+			Expect(result.BOM.Entries[0].Launch).To(BeFalse())
+			Expect(result.BOM.Entries[1].Name).To(Equal("mvnd"))
+			Expect(result.BOM.Entries[1].Build).To(BeTrue())
+			Expect(result.BOM.Entries[1].Launch).To(BeFalse())
 		})
 	})
 }

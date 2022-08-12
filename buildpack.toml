@@ -60,6 +60,12 @@ api = "0.7"
     default = "false"
     description = "use maven daemon"
     name = "BP_MAVEN_DAEMON_ENABLED"
+  
+  [[metadata.configurations]]
+    build = true
+    default = "false"
+    description = "distribute maven binary"
+    name = "BP_MAVEN_COMMAND"
 
   [[metadata.dependencies]]
     cpes = ["cpe:2.3:a:apache:maven:3.8.6:*:*:*:*:*:*:*"]

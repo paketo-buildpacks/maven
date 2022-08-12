@@ -42,6 +42,13 @@ const (
 	RunBuild = "RunBuild"
 )
 
+var (
+	artifacts = map[string]string{
+		"mvn":  "maven",
+		"mvnd": "mvnd",
+	}
+)
+
 type Build struct {
 	Logger             bard.Logger
 	ApplicationFactory ApplicationFactory
@@ -53,25 +60,38 @@ type ApplicationFactory interface {
 		cache libbs.Cache, command string, bom *libcnb.BOM, applicationPath string, bomScanner sbom.SBOMScanner) (libbs.Application, error)
 }
 
-func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
-	b.Logger.Title(context.Buildpack)
-	result := libcnb.NewBuildResult()
-
-	cr, err := libpak.NewConfigurationResolver(context.Buildpack, &b.Logger)
-	if err != nil {
-		return libcnb.BuildResult{}, fmt.Errorf("unable to create configuration resolver\n%w", err)
-	}
-
+func install(b Build, context libcnb.BuildContext, artifact string) (string, libcnb.LayerContributor, libcnb.BOMEntry, error) {
 	dr, err := libpak.NewDependencyResolver(context)
 	if err != nil {
-		return libcnb.BuildResult{}, fmt.Errorf("unable to create dependency resolver\n%w", err)
+		return "", nil, libcnb.BOMEntry{}, fmt.Errorf("unable to create dependency resolver\n%w", err)
 	}
 
 	dc, err := libpak.NewDependencyCache(context)
 	if err != nil {
-		return libcnb.BuildResult{}, fmt.Errorf("unable to create dependency cache\n%w", err)
+		return "", nil, libcnb.BOMEntry{}, fmt.Errorf("unable to create dependency cache\n%w", err)
 	}
 	dc.Logger = b.Logger
+
+	dep, err := dr.Resolve(artifact, "")
+	if err != nil {
+		return "", nil, libcnb.BOMEntry{}, fmt.Errorf("unable to find dependency\n%w", err)
+	}
+
+	if artifact == "maven" {
+		dist, be := NewDistribution(dep, dc)
+		dist.Logger = b.Logger
+		command := filepath.Join(context.Layers.Path, dist.Name(), "bin", "mvn")
+		return command, dist, be, nil
+	}
+	dist, be := NewDistribution(dep, dc)
+	dist.Logger = b.Logger
+	command := filepath.Join(context.Layers.Path, dist.Name(), "bin", "mvnd")
+	return command, dist, be, nil
+}
+
+func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
+	b.Logger.Title(context.Buildpack)
+	result := libcnb.NewBuildResult()
 
 	pr := libpak.PlanEntryResolver{
 		Plan: context.Plan,
@@ -84,45 +104,24 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 		}
 	}
 
+	cr, err := libpak.NewConfigurationResolver(context.Buildpack, &b.Logger)
+	if err != nil {
+		return libcnb.BuildResult{}, fmt.Errorf("unable to create configuration resolver\n%w", err)
+	}
+
 	bpMavenCommand, _ := cr.Resolve(BpMavenCommand)
-	command := ""
-	if cr.ResolveBool("BP_MAVEN_DAEMON_ENABLED") || bpMavenCommand == "mvnd" {
-		dep, err := dr.Resolve("mvnd", "")
-		if err != nil {
-			return libcnb.BuildResult{}, fmt.Errorf("unable to find dependency\n%w", err)
+	// no install requested and no build requested
+	if bpMavenCommand == "" && runBuild == false {
+		return libcnb.BuildResult{}, nil
+	}
+
+	if bpMavenCommand == "mvn" || bpMavenCommand == "mvnd" {
+		cmd, layer, bomEntry, err := install(b, context, artifacts[bpMavenCommand])
+		if cmd == "" {
+			return libcnb.BuildResult{}, fmt.Errorf("unable to install dependency\n%w", err)
 		}
-
-		dist, be := NewMvndDistribution(dep, dc)
-		dist.Logger = b.Logger
-		result.Layers = append(result.Layers, dist)
-		result.BOM.Entries = append(result.BOM.Entries, be)
-
-		command = filepath.Join(context.Layers.Path, dist.Name(), "bin", "mvnd")
-	} else {
-		command = filepath.Join(context.Application.Path, "mvnw")
-		if _, err := os.Stat(command); os.IsNotExist(err) || bpMavenCommand == "mvn" {
-			dep, err := dr.Resolve("maven", "")
-			if err != nil {
-				return libcnb.BuildResult{}, fmt.Errorf("unable to find dependency\n%w", err)
-			}
-
-			dist, be := NewDistribution(dep, dc)
-			dist.Logger = b.Logger
-			result.Layers = append(result.Layers, dist)
-			result.BOM.Entries = append(result.BOM.Entries, be)
-
-			command = filepath.Join(context.Layers.Path, dist.Name(), "bin", "mvn")
-		} else if err != nil {
-			return libcnb.BuildResult{}, fmt.Errorf("unable to stat %s\n%w", command, err)
-		} else {
-			if err := os.Chmod(command, 0755); err != nil {
-				b.Logger.Bodyf("WARNING: unable to chmod %s:\n%s", command, err)
-			}
-
-			if err = b.CleanMvnWrapper(command); err != nil {
-				b.Logger.Bodyf("WARNING: unable to clean mvnw file: %s\n%s", command, err)
-			}
-		}
+		result.Layers = append(result.Layers, layer)
+		result.BOM.Entries = append(result.BOM.Entries, bomEntry)
 	}
 
 	u, err := user.Current()
@@ -132,9 +131,42 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 
 	c := libbs.Cache{Path: filepath.Join(u.HomeDir, ".m2")}
 	c.Logger = b.Logger
-	result.Layers = append(result.Layers, c)
 
 	if runBuild {
+		command := ""
+		if cr.ResolveBool("BP_MAVEN_DAEMON_ENABLED") && bpMavenCommand != "mvnd" {
+			cmd, layer, bomEntry, err := install(b, context, "mvnd")
+			if err != nil {
+				return libcnb.BuildResult{}, err
+			}
+			result.Layers = append(result.Layers, layer)
+			result.BOM.Entries = append(result.BOM.Entries, bomEntry)
+			command = cmd
+		} else {
+			command = filepath.Join(context.Application.Path, "mvnw")
+			if _, err := os.Stat(command); os.IsNotExist(err) && bpMavenCommand != "mvn" {
+				cmd, layer, bomEntry, err := install(b, context, "maven")
+				if err != nil {
+					return libcnb.BuildResult{}, err
+				}
+				result.Layers = append(result.Layers, layer)
+				result.BOM.Entries = append(result.BOM.Entries, bomEntry)
+				command = cmd
+			} else if err != nil {
+				return libcnb.BuildResult{}, fmt.Errorf("unable to stat %s\n%w", command, err)
+			} else {
+				if err := os.Chmod(command, 0755); err != nil {
+					b.Logger.Bodyf("WARNING: unable to chmod %s:\n%s", command, err)
+				}
+
+				if err = b.CleanMvnWrapper(command); err != nil {
+					b.Logger.Bodyf("WARNING: unable to clean mvnw file: %s\n%s", command, err)
+				}
+			}
+		}
+
+		result.Layers = append(result.Layers, c)
+
 		args, err := libbs.ResolveArguments("BP_MAVEN_BUILD_ARGUMENTS", cr)
 		if err != nil {
 			return libcnb.BuildResult{}, fmt.Errorf("unable to resolve build arguments\n%w", err)
@@ -185,7 +217,10 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 
 		a.Logger = b.Logger
 		result.Layers = append(result.Layers, a)
+	} else {
+		result.Layers = append(result.Layers, c)
 	}
+
 	return result, nil
 }
 
