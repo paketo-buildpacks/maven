@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/buildpacks/libcnb v1.26.0
-	github.com/mattn/go-isatty v0.0.14
+	github.com/mattn/go-isatty v0.0.16
 	github.com/onsi/gomega v1.20.0
 	github.com/paketo-buildpacks/libbs v1.14.1
 	github.com/paketo-buildpacks/libpak v1.61.0
@@ -28,7 +28,7 @@ require (
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
-	golang.org/x/sys v0.0.0-20220422013727-9388b58f7150 // indirect
+	golang.org/x/sys v0.0.0-20220811171246-fbc7d0a398ab // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
