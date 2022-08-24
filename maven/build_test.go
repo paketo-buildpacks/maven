@@ -455,14 +455,13 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 				Name: maven.PlanEntryMaven,
 				Metadata: map[string]interface{}{
 					maven.RunBuild: false,
+					maven.Command:  "maven",
 				},
 			}
 			ctx.Plan.Entries = append(ctx.Plan.Entries, entry)
-			os.Setenv("BP_MAVEN_COMMAND", "mvn")
 		})
 
 		it.After(func() {
-			os.Unsetenv("BP_MAVEN_COMMAND")
 			_, ctx.Plan.Entries = ctx.Plan.Entries[len(ctx.Plan.Entries)-1], ctx.Plan.Entries[:len(ctx.Plan.Entries)-1]
 		})
 
@@ -522,15 +521,14 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 				Name: maven.PlanEntryMaven,
 				Metadata: map[string]interface{}{
 					maven.RunBuild: true,
+					maven.Command:  "maven",
 				},
 			}
 			ctx.Plan.Entries = append(ctx.Plan.Entries, entry)
-			os.Setenv("BP_MAVEN_COMMAND", "mvn")
 			os.Setenv("BP_MAVEN_DAEMON_ENABLED", "1")
 		})
 
 		it.After(func() {
-			os.Unsetenv("BP_MAVEN_COMMAND")
 			os.Unsetenv("BP_MAVEN_DAEMON_ENABLED")
 			_, ctx.Plan.Entries = ctx.Plan.Entries[len(ctx.Plan.Entries)-1], ctx.Plan.Entries[:len(ctx.Plan.Entries)-1]
 		})

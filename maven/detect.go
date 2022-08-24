@@ -32,7 +32,6 @@ const (
 	PlanEntryJVMApplicationPackage = "jvm-application-package"
 	PlanEntryJDK                   = "jdk"
 	PlanEntrySyft                  = "syft"
-	BpMavenCommand                 = "BP_MAVEN_COMMAND"
 )
 
 type Detect struct{}
@@ -42,6 +41,29 @@ func (Detect) Detect(context libcnb.DetectContext) (libcnb.DetectResult, error) 
 	cr, err := libpak.NewConfigurationResolver(context.Buildpack, &l)
 	if err != nil {
 		return libcnb.DetectResult{}, err
+	}
+
+	provide_maven := libcnb.DetectResult{
+		Pass: true,
+		Plans: []libcnb.BuildPlan{
+			{
+				Provides: []libcnb.BuildPlanProvide{
+					{Name: PlanEntryMaven},
+				},
+				Requires: []libcnb.BuildPlanRequire{
+					{Name: PlanEntryMaven},
+				},
+			},
+		},
+	}
+
+	pomFile, _ := cr.Resolve("BP_MAVEN_POM_FILE")
+	file := filepath.Join(context.Application.Path, pomFile)
+	_, err = os.Stat(file)
+	if os.IsNotExist(err) {
+		return provide_maven, nil
+	} else if err != nil {
+		return libcnb.DetectResult{}, fmt.Errorf("unable to determine if %s exists\n%w", file, err)
 	}
 
 	result := libcnb.DetectResult{
@@ -60,19 +82,5 @@ func (Detect) Detect(context libcnb.DetectContext) (libcnb.DetectResult, error) 
 			},
 		},
 	}
-
-	if binary, _ := cr.Resolve(BpMavenCommand); binary == "mvn" || binary == "mvnd" {
-		return result, nil
-	}
-
-	pomFile, _ := cr.Resolve("BP_MAVEN_POM_FILE")
-	file := filepath.Join(context.Application.Path, pomFile)
-	_, err = os.Stat(file)
-	if os.IsNotExist(err) {
-		return libcnb.DetectResult{Pass: false}, nil
-	} else if err != nil {
-		return libcnb.DetectResult{}, fmt.Errorf("unable to determine if %s exists\n%w", file, err)
-	}
-
 	return result, nil
 }

@@ -39,14 +39,8 @@ import (
 )
 
 const (
+	Command  = "Command"
 	RunBuild = "RunBuild"
-)
-
-var (
-	artifacts = map[string]string{
-		"mvn":  "maven",
-		"mvnd": "mvnd",
-	}
 )
 
 type Build struct {
@@ -103,20 +97,23 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 			runBuild = runBuildValue
 		}
 	}
+	mavenCommand := ""
+	if command, ok := entry.Metadata[Command].(string); ok {
+		mavenCommand = command
+	}
 
 	cr, err := libpak.NewConfigurationResolver(context.Buildpack, &b.Logger)
 	if err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to create configuration resolver\n%w", err)
 	}
 
-	bpMavenCommand, _ := cr.Resolve(BpMavenCommand)
 	// no install requested and no build requested
-	if bpMavenCommand == "" && runBuild == false {
+	if mavenCommand == "" && !runBuild {
 		return libcnb.BuildResult{}, nil
 	}
 
-	if bpMavenCommand == "mvn" || bpMavenCommand == "mvnd" {
-		cmd, layer, bomEntry, err := install(b, context, artifacts[bpMavenCommand])
+	if mavenCommand == "maven" || mavenCommand == "mvnd" {
+		cmd, layer, bomEntry, err := install(b, context, mavenCommand)
 		if cmd == "" {
 			return libcnb.BuildResult{}, fmt.Errorf("unable to install dependency\n%w", err)
 		}
@@ -134,7 +131,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 
 	if runBuild {
 		command := ""
-		if cr.ResolveBool("BP_MAVEN_DAEMON_ENABLED") && bpMavenCommand != "mvnd" {
+		if cr.ResolveBool("BP_MAVEN_DAEMON_ENABLED") && mavenCommand != "mvnd" {
 			cmd, layer, bomEntry, err := install(b, context, "mvnd")
 			if err != nil {
 				return libcnb.BuildResult{}, err
@@ -144,7 +141,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 			command = cmd
 		} else {
 			command = filepath.Join(context.Application.Path, "mvnw")
-			if _, err := os.Stat(command); os.IsNotExist(err) && bpMavenCommand != "mvn" {
+			if _, err := os.Stat(command); os.IsNotExist(err) && mavenCommand != "maven" {
 				cmd, layer, bomEntry, err := install(b, context, "maven")
 				if err != nil {
 					return libcnb.BuildResult{}, err

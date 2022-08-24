@@ -48,9 +48,21 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 		Expect(os.RemoveAll(ctx.Application.Path)).To(Succeed())
 	})
 
-	it("fails without pom.xml", func() {
+	it("provides maven without pom.xml", func() {
 		os.Setenv("BP_MAVEN_POM_FILE", "pom.xml")
-		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{}))
+		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{
+			Pass: true,
+			Plans: []libcnb.BuildPlan{
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: maven.PlanEntryMaven},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: maven.PlanEntryMaven},
+					},
+				},
+			},
+		}))
 	})
 
 	it("passes with pom.xml", func() {
