@@ -19,6 +19,7 @@ package maven
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/buildpacks/libcnb"
 	"github.com/paketo-buildpacks/libpak"
@@ -29,6 +30,7 @@ import (
 type MvndDistribution struct {
 	LayerContributor libpak.DependencyLayerContributor
 	Logger           bard.Logger
+	SecurityArgs     []string
 }
 
 func NewMvndDistribution(dependency libpak.BuildpackDependency, cache libpak.DependencyCache) (MvndDistribution, libcnb.BOMEntry) {
@@ -48,6 +50,9 @@ func (d MvndDistribution) Contribute(layer libcnb.Layer) (libcnb.Layer, error) {
 			return libcnb.Layer{}, fmt.Errorf("unable to expand Maven\n%w", err)
 		}
 
+		if len(d.SecurityArgs) > 0 {
+			layer.BuildEnvironment.Override("MAVEN_OPTS", strings.Join(d.SecurityArgs, " "))
+		}
 		return layer, nil
 	})
 }

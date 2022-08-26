@@ -56,6 +56,7 @@ func testDistribution(t *testing.T, context spec.G, it spec.S) {
 		dc := libpak.DependencyCache{CachePath: "testdata"}
 
 		d, _ := maven.NewDistribution(dep, dc)
+		d.SecurityArgs = []string{"test", "test"}
 		layer, err := ctx.Layers.Layer("test-layer")
 		Expect(err).NotTo(HaveOccurred())
 
@@ -64,6 +65,7 @@ func testDistribution(t *testing.T, context spec.G, it spec.S) {
 
 		Expect(layer.Cache).To(BeTrue())
 		Expect(filepath.Join(layer.Path, "fixture-marker")).To(BeARegularFile())
+		Expect(layer.BuildEnvironment["MAVEN_OPTS.override"]).To(Equal("test test"))
 	})
 
 }

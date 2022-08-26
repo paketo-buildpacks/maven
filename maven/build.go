@@ -54,7 +54,7 @@ type ApplicationFactory interface {
 		cache libbs.Cache, command string, bom *libcnb.BOM, applicationPath string, bomScanner sbom.SBOMScanner) (libbs.Application, error)
 }
 
-func install(b Build, context libcnb.BuildContext, artifact string) (string, libcnb.LayerContributor, libcnb.BOMEntry, error) {
+func install(b Build, context libcnb.BuildContext, artifact string, securityArgs []string) (string, libcnb.LayerContributor, libcnb.BOMEntry, error) {
 	dr, err := libpak.NewDependencyResolver(context)
 	if err != nil {
 		return "", nil, libcnb.BOMEntry{}, fmt.Errorf("unable to create dependency resolver\n%w", err)
@@ -73,11 +73,13 @@ func install(b Build, context libcnb.BuildContext, artifact string) (string, lib
 
 	if artifact == "maven" {
 		dist, be := NewDistribution(dep, dc)
+		dist.SecurityArgs = securityArgs
 		dist.Logger = b.Logger
 		command := filepath.Join(context.Layers.Path, dist.Name(), "bin", "mvn")
 		return command, dist, be, nil
 	}
 	dist, be := NewDistribution(dep, dc)
+	dist.SecurityArgs = securityArgs
 	dist.Logger = b.Logger
 	command := filepath.Join(context.Layers.Path, dist.Name(), "bin", "mvnd")
 	return command, dist, be, nil
@@ -112,8 +114,19 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 		return libcnb.BuildResult{}, nil
 	}
 
+	md := map[string]interface{}{}
+	securityArgs := []string{}
+	if binding, ok, err := bindings.ResolveOne(context.Platform.Bindings, bindings.OfType("maven")); err != nil {
+		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve binding\n%w", err)
+	} else if ok {
+		securityArgs, err = handleMavenSettings(binding, securityArgs, md)
+		if err != nil {
+			return libcnb.BuildResult{}, fmt.Errorf("unable to process maven settings from binding\n%w", err)
+		}
+	}
+
 	if mavenCommand == "maven" || mavenCommand == "mvnd" {
-		cmd, layer, bomEntry, err := install(b, context, mavenCommand)
+		cmd, layer, bomEntry, err := install(b, context, mavenCommand, securityArgs)
 		if cmd == "" {
 			return libcnb.BuildResult{}, fmt.Errorf("unable to install dependency\n%w", err)
 		}
@@ -132,7 +145,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	if runBuild {
 		command := ""
 		if cr.ResolveBool("BP_MAVEN_DAEMON_ENABLED") && mavenCommand != "mvnd" {
-			cmd, layer, bomEntry, err := install(b, context, "mvnd")
+			cmd, layer, bomEntry, err := install(b, context, "mvnd", securityArgs)
 			if err != nil {
 				return libcnb.BuildResult{}, err
 			}
@@ -142,7 +155,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 		} else {
 			command = filepath.Join(context.Application.Path, "mvnw")
 			if _, err := os.Stat(command); os.IsNotExist(err) && mavenCommand != "maven" {
-				cmd, layer, bomEntry, err := install(b, context, "maven")
+				cmd, layer, bomEntry, err := install(b, context, "maven", securityArgs)
 				if err != nil {
 					return libcnb.BuildResult{}, err
 				}
@@ -179,15 +192,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 			args = append([]string{"--batch-mode"}, args...)
 		}
 
-		md := map[string]interface{}{}
-		if binding, ok, err := bindings.ResolveOne(context.Platform.Bindings, bindings.OfType("maven")); err != nil {
-			return libcnb.BuildResult{}, fmt.Errorf("unable to resolve binding\n%w", err)
-		} else if ok {
-			args, err = handleMavenSettings(binding, args, md)
-			if err != nil {
-				return libcnb.BuildResult{}, fmt.Errorf("unable to process maven settings from binding\n%w", err)
-			}
-		}
+		args = append(securityArgs, args...)
 
 		art := libbs.ArtifactResolver{
 			ArtifactConfigurationKey: "BP_MAVEN_BUILT_ARTIFACT",
