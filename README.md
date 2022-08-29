@@ -33,7 +33,7 @@ The buildpack will do the following:
 | `$BP_MAVEN_BUILT_ARTIFACT`  | Configure the built application artifact explicitly.  Supersedes `$BP_MAVEN_BUILT_MODULE`  Defaults to `target/*.[ejw]ar`. Can match a single file, multiple files or a directory. Can be one or more space separated patterns.    |
 | `$BP_MAVEN_POM_FILE`        | Specifies a custom location to the project's `pom.xml` file. It should be a full path to the file under the `/workspace` directory or it should be relative to the root of the project (i.e. `/workspace'). Defaults to `pom.xml`. |
 | `$BP_MAVEN_DAEMON_ENABLED`  | Triggers apache maven-mvnd to be installed and configured for use instead of Maven. The default value is `false`. Set to `true` to use the Maven Daemon.                                                                           |
-| `$BP_MAVEN_SETTINGS_PATH`  | Specifies a custom location to maven's `settings.xml` file. If `$BP_MAVEN_SETTINGS_PATH` but a maven binding is provided, the binding takes the higher precedence.  |
+| `$BP_MAVEN_SETTINGS_PATH`  | Specifies a custom location to Maven's `settings.xml` file. If `$BP_MAVEN_SETTINGS_PATH` is set and a Maven binding is provided, the binding takes the higher precedence.  |
 
 ## Bindings
 
