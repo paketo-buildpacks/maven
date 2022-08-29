@@ -63,7 +63,7 @@ api = "0.7"
 
   [[metadata.configurations]]
     build = true
-    description = "the path to maven settings file"
+    description = "the path to a Maven settings file"
     name = "BP_MAVEN_SETTINGS_PATH"
 
   [[metadata.dependencies]]
