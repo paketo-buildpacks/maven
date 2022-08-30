@@ -130,6 +130,49 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		})
 	})
 
+	context("BP_MAVEN_SETTINGS_PATH configuration is set", func() {
+		it.Before(func() {
+			ctx.Buildpack.Metadata = map[string]interface{}{
+				"configurations": []map[string]interface{}{
+					{"name": "BP_MAVEN_SETTINGS_PATH", "default": "/workspace/settings.xml"},
+				},
+			}
+		})
+
+		it("sets the settings path", func() {
+			Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
+
+			result, err := mavenBuild.Build(ctx)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{
+				"--settings=/workspace/settings.xml",
+			}))
+		})
+	})
+
+	context("BP_MAVEN_SETTINGS_PATH env var is set", func() {
+		it.Before(func() {
+			Expect(os.Setenv("BP_MAVEN_SETTINGS_PATH", "/workspace/settings.xml")).To(Succeed())
+		})
+
+		it.After(func() {
+			Expect(os.Unsetenv(("BP_MAVEN_SETTINGS_PATH"))).To(Succeed())
+		})
+
+		it("sets the settings path", func() {
+			Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
+
+			result, err := mavenBuild.Build(ctx)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{
+				"--settings=/workspace/settings.xml",
+				"test-argument",
+			}))
+		})
+	})
+
 	it("does not contribute distribution if wrapper exists", func() {
 		Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
 		ctx.StackID = "test-stack-id"
@@ -346,6 +389,28 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			// expected: sha256 of the string "maven-settings-content"
 			expected := "cc784f356a8efb8e138b99aabe8b1c813a3e921b059c48a0b39b2497a2c478c5"
 			Expect(mdMap["settings-sha256"]).To(Equal(expected))
+		})
+
+		context("BP_MAVEN_SETTINGS_PATH env var is set", func() {
+			it.Before(func() {
+				Expect(os.Setenv("BP_MAVEN_SETTINGS_PATH", "/workspace/settings.xml")).To(Succeed())
+			})
+
+			it.After(func() {
+				Expect(os.Unsetenv(("BP_MAVEN_SETTINGS_PATH"))).To(Succeed())
+			})
+
+			it("sets the settings path to the bindings instead of the env var", func() {
+				Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
+
+				result, err := mavenBuild.Build(ctx)
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{
+					fmt.Sprintf("--settings=%s", filepath.Join(ctx.Platform.Path, "bindings", "some-maven", "settings.xml")),
+					"test-argument",
+				}))
+			})
 		})
 	})
 

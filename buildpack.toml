@@ -67,6 +67,11 @@ api = "0.7"
     description = "distribute maven binary"
     name = "BP_MAVEN_COMMAND"
 
+  [[metadata.configurations]]
+    build = true
+    description = "the path to a Maven settings file"
+    name = "BP_MAVEN_SETTINGS_PATH"
+
   [[metadata.dependencies]]
     cpes = ["cpe:2.3:a:apache:maven:3.8.6:*:*:*:*:*:*:*"]
     id = "maven"

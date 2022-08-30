@@ -123,6 +123,11 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 		if err != nil {
 			return libcnb.BuildResult{}, fmt.Errorf("unable to process maven settings from binding\n%w", err)
 		}
+	} else if !ok {
+		settingsPath, _ := cr.Resolve("BP_MAVEN_SETTINGS_PATH")
+		if settingsPath != "" {
+			args = append([]string{fmt.Sprintf("--settings=%s", settingsPath)}, args...)
+		}
 	}
 
 	if mavenCommand == "maven" || mavenCommand == "mvnd" {
