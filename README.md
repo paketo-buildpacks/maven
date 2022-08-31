@@ -1,6 +1,6 @@
 # `gcr.io/paketo-buildpacks/maven`
 
-The Paketo Maven Buildpack is a Cloud Native Buildpack that builds Maven-based applications from source.
+The Paketo Buildpack for Maven is a Cloud Native Buildpack that builds Maven-based applications from source.
 
 ## Behavior
 
