@@ -19,7 +19,7 @@ api = "0.7"
   homepage = "https://github.com/paketo-buildpacks/maven"
   id = "paketo-buildpacks/maven"
   keywords = ["java", "maven", "build-system"]
-  name = "Paketo Maven Buildpack"
+  name = "Paketo Buildpack for Maven"
   sbom-formats = ["application/vnd.cyclonedx+json", "application/vnd.syft+json"]
   version = "{{.version}}"
 
