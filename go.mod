@@ -3,7 +3,7 @@ module github.com/paketo-buildpacks/maven/v6
 go 1.18
 
 require (
-	github.com/buildpacks/libcnb v1.26.0
+	github.com/buildpacks/libcnb v1.27.0
 	github.com/mattn/go-isatty v0.0.16
 	github.com/onsi/gomega v1.20.1
 	github.com/paketo-buildpacks/libbs v1.15.0
