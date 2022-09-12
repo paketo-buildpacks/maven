@@ -74,6 +74,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	}
 	b.depCache.Logger = b.Logger
 
+	// install Maven, if needed
 	command, layer, be, err := b.installMaven(context)
 	if err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to install Maven\n%w", err)
@@ -87,6 +88,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 		result.BOM.Entries = append(result.BOM.Entries, *be)
 	}
 
+	// setup and run Maven
 	u, err := user.Current()
 	if err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to determine user home directory\n%w", err)
@@ -96,41 +98,9 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	c.Logger = b.Logger
 	result.Layers = append(result.Layers, c)
 
-	args, err := libbs.ResolveArguments("BP_MAVEN_BUILD_ARGUMENTS", b.configResolver)
+	art, md, args, err := b.setupMaven(context)
 	if err != nil {
-		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve build arguments\n%w", err)
-	}
-
-	pomFile, userSet := b.configResolver.Resolve("BP_MAVEN_POM_FILE")
-	if userSet {
-		args = append([]string{"--file", pomFile}, args...)
-	}
-
-	if !b.TTY && !contains(args, []string{"-B", "--batch-mode"}) {
-		// terminal is not tty, and the user did not set batch mode; let's set it
-		args = append([]string{"--batch-mode"}, args...)
-	}
-
-	md := map[string]interface{}{}
-	if binding, ok, err := bindings.ResolveOne(context.Platform.Bindings, bindings.OfType("maven")); err != nil {
-		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve binding\n%w", err)
-	} else if ok {
-		args, err = handleMavenSettings(binding, args, md)
-		if err != nil {
-			return libcnb.BuildResult{}, fmt.Errorf("unable to process maven settings from binding\n%w", err)
-		}
-	} else if !ok {
-		settingsPath, _ := b.configResolver.Resolve("BP_MAVEN_SETTINGS_PATH")
-		if settingsPath != "" {
-			args = append([]string{fmt.Sprintf("--settings=%s", settingsPath)}, args...)
-		}
-	}
-
-	art := libbs.ArtifactResolver{
-		ArtifactConfigurationKey: "BP_MAVEN_BUILT_ARTIFACT",
-		ConfigurationResolver:    b.configResolver,
-		ModuleConfigurationKey:   "BP_MAVEN_BUILT_MODULE",
-		InterestingFileDetector:  libbs.JARInterestingFileDetector{},
+		return libcnb.BuildResult{}, fmt.Errorf("unable to setup Maven\n%w", err)
 	}
 
 	bomScanner := sbom.NewSyftCLISBOMScanner(context.Layers, effect.NewExecutor(), b.Logger)
@@ -195,6 +165,45 @@ func (b Build) installMaven(context libcnb.BuildContext) (string, libcnb.LayerCo
 			return command, nil, nil, nil
 		}
 	}
+}
+
+func (b Build) setupMaven(context libcnb.BuildContext) (libbs.ArtifactResolver, map[string]interface{}, []string, error) {
+	args, err := libbs.ResolveArguments("BP_MAVEN_BUILD_ARGUMENTS", b.configResolver)
+	if err != nil {
+		return libbs.ArtifactResolver{}, map[string]interface{}{}, []string{}, fmt.Errorf("unable to resolve build arguments\n%w", err)
+	}
+
+	pomFile, userSet := b.configResolver.Resolve("BP_MAVEN_POM_FILE")
+	if userSet {
+		args = append([]string{"--file", pomFile}, args...)
+	}
+
+	if !b.TTY && !contains(args, []string{"-B", "--batch-mode"}) {
+		// terminal is not tty, and the user did not set batch mode; let's set it
+		args = append([]string{"--batch-mode"}, args...)
+	}
+
+	md := map[string]interface{}{}
+	if binding, ok, err := bindings.ResolveOne(context.Platform.Bindings, bindings.OfType("maven")); err != nil {
+		return libbs.ArtifactResolver{}, map[string]interface{}{}, []string{}, fmt.Errorf("unable to resolve binding\n%w", err)
+	} else if ok {
+		args, err = handleMavenSettings(binding, args, md)
+		if err != nil {
+			return libbs.ArtifactResolver{}, map[string]interface{}{}, []string{}, fmt.Errorf("unable to process maven settings from binding\n%w", err)
+		}
+	} else if !ok {
+		settingsPath, _ := b.configResolver.Resolve("BP_MAVEN_SETTINGS_PATH")
+		if settingsPath != "" {
+			args = append([]string{fmt.Sprintf("--settings=%s", settingsPath)}, args...)
+		}
+	}
+
+	return libbs.ArtifactResolver{
+		ArtifactConfigurationKey: "BP_MAVEN_BUILT_ARTIFACT",
+		ConfigurationResolver:    b.configResolver,
+		ModuleConfigurationKey:   "BP_MAVEN_BUILT_MODULE",
+		InterestingFileDetector:  libbs.JARInterestingFileDetector{},
+	}, md, args, nil
 }
 
 func handleMavenSettings(binding libcnb.Binding, args []string, md map[string]interface{}) ([]string, error) {
