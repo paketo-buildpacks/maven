@@ -88,7 +88,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 		result.BOM.Entries = append(result.BOM.Entries, *be)
 	}
 
-	// setup and run Maven
+	// setup Maven
 	u, err := user.Current()
 	if err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to determine user home directory\n%w", err)
@@ -105,6 +105,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 
 	bomScanner := sbom.NewSyftCLISBOMScanner(context.Layers, effect.NewExecutor(), b.Logger)
 
+	// build a layer contributor to run Maven
 	a, err := b.ApplicationFactory.NewApplication(
 		md,
 		args,

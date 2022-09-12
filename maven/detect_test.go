@@ -48,9 +48,32 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 		Expect(os.RemoveAll(ctx.Application.Path)).To(Succeed())
 	})
 
-	it("fails without pom.xml", func() {
+	it("only provides with pom.xml", func() {
 		os.Setenv("BP_MAVEN_POM_FILE", "pom.xml")
-		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{}))
+		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{
+			Pass: true,
+			Plans: []libcnb.BuildPlan{
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "jdk"},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+						{Name: "maven"},
+					},
+				},
+			},
+		}))
 	})
 
 	it("passes with pom.xml", func() {
@@ -59,6 +82,24 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{
 			Pass: true,
 			Plans: []libcnb.BuildPlan{
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "jdk"},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
+						{Name: "jdk"},
+						{Name: "maven"},
+					},
+				},
 				{
 					Provides: []libcnb.BuildPlanProvide{
 						{Name: "jvm-application-package"},
@@ -82,6 +123,24 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{
 			Pass: true,
 			Plans: []libcnb.BuildPlan{
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "jdk"},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
+						{Name: "jdk"},
+						{Name: "maven"},
+					},
+				},
 				{
 					Provides: []libcnb.BuildPlanProvide{
 						{Name: "jvm-application-package"},
