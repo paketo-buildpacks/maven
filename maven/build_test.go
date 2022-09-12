@@ -84,7 +84,6 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			"--batch-mode",
 			"test-argument",
 		}))
-
 	})
 
 	context("BP_MAVEN_POM_FILE is set", func() {
