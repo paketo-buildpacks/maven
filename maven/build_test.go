@@ -17,8 +17,6 @@
 package maven_test
 
 import (
-	"bytes"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -56,6 +54,8 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 				{"name": "BP_MAVEN_BUILD_ARGUMENTS", "default": "test-argument"},
 			},
 		}
+
+		ctx.Plan.Entries = append(ctx.Plan.Entries, libcnb.BuildpackPlanEntry{Name: "jvm-application-package"})
 
 		ctx.Layers.Path, err = ioutil.TempDir("", "build-layers")
 		Expect(err).NotTo(HaveOccurred())
@@ -173,6 +173,8 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 	})
 
 	it("does not contribute distribution if wrapper exists", func() {
+		ctx.Plan.Entries = append(ctx.Plan.Entries, libcnb.BuildpackPlanEntry{Name: "maven"})
+
 		Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
 		ctx.StackID = "test-stack-id"
 
@@ -189,38 +191,11 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{"test-argument"}))
 	})
 
-	it("makes sure that mvnw is executable", func() {
-		Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
-		ctx.StackID = "test-stack-id"
+	it("contributes distribution", func() {
+		t.Setenv("PATH", "/does-not-exist") // prevents mvn from possibly being on the PATH
 
-		_, err := mavenBuild.Build(ctx)
-		Expect(err).NotTo(HaveOccurred())
+		ctx.Plan.Entries = append(ctx.Plan.Entries, libcnb.BuildpackPlanEntry{Name: "maven"})
 
-		fi, err := os.Stat(mvnwFilepath)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(fi.Mode()).To(BeEquivalentTo(0755))
-	})
-
-	it("proceeds without error if mvnw could not have been made executable", func() {
-		if _, err := os.Stat("/dev/null"); errors.Is(err, os.ErrNotExist) {
-			t.Skip("No /dev/null thus not a unix system. Skipping chmod test.")
-		}
-		Expect(os.Symlink("/dev/null", mvnwFilepath)).To(Succeed())
-		fi, err := os.Stat(mvnwFilepath)
-		Expect(err).NotTo(HaveOccurred())
-		originalMode := fi.Mode()
-		Expect(originalMode).ToNot(BeEquivalentTo(0755))
-		ctx.StackID = "test-stack-id"
-
-		_, err = mavenBuild.Build(ctx)
-		Expect(err).NotTo(HaveOccurred())
-
-		fi, err = os.Stat(mvnwFilepath)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(fi.Mode()).To(BeEquivalentTo(originalMode))
-	})
-
-	it("contributes distribution for API 0.7+", func() {
 		ctx.Buildpack.Metadata["dependencies"] = []map[string]interface{}{
 			{
 				"id":      "maven",
@@ -248,26 +223,29 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		Expect(result.BOM.Entries[0].Launch).To(BeFalse())
 	})
 
-	it("contributes distribution for API <=0.6", func() {
+	it("contributes distribution but not a Maven build layer", func() {
+		t.Setenv("PATH", "/does-not-exist") // prevents mvn from possibly being on the PATH
+
+		// overwrite plan entries so that we squash the `jvm-application-package` added in Before
+		ctx.Plan.Entries = []libcnb.BuildpackPlanEntry{{Name: "maven"}}
+
 		ctx.Buildpack.Metadata["dependencies"] = []map[string]interface{}{
 			{
 				"id":      "maven",
 				"version": "1.1.1",
 				"stacks":  []interface{}{"test-stack-id"},
+				"cpes":    []string{"cpe:2.3:a:apache:maven:3.8.3:*:*:*:*:*:*:*"},
+				"purl":    "pkg:generic/apache-maven@3.8.3",
 			},
 		}
 		ctx.StackID = "test-stack-id"
-		ctx.Buildpack.API = "0.6"
 
 		result, err := mavenBuild.Build(ctx)
 		Expect(err).NotTo(HaveOccurred())
 
-		Expect(result.Layers).To(HaveLen(3))
+		Expect(result.Layers).To(HaveLen(2))
 		Expect(result.Layers[0].Name()).To(Equal("maven"))
 		Expect(result.Layers[1].Name()).To(Equal("cache"))
-		Expect(result.Layers[2].Name()).To(Equal("application"))
-		Expect(result.Layers[2].(libbs.Application).Command).To(Equal(filepath.Join(ctx.Layers.Path, "maven", "bin", "mvn")))
-		Expect(result.Layers[2].(libbs.Application).Arguments).To(Equal([]string{"test-argument"}))
 
 		Expect(result.BOM.Entries).To(HaveLen(1))
 		Expect(result.BOM.Entries[0].Name).To(Equal("maven"))
@@ -284,7 +262,9 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			Expect(os.Unsetenv(("BP_MAVEN_DAEMON_ENABLED"))).To(Succeed())
 		})
 
-		it("contributes mvnd distribution for API 0.7+", func() {
+		it("contributes mvnd distribution", func() {
+			ctx.Plan.Entries = append(ctx.Plan.Entries, libcnb.BuildpackPlanEntry{Name: "maven"})
+
 			ctx.Buildpack.Metadata["dependencies"] = []map[string]interface{}{
 				{
 					"id":      "mvnd",
@@ -311,32 +291,39 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			Expect(result.BOM.Entries[0].Build).To(BeTrue())
 			Expect(result.BOM.Entries[0].Launch).To(BeFalse())
 		})
+	})
 
-		it("contributes mvnd distribution for API <=0.6", func() {
-			ctx.Buildpack.Metadata["dependencies"] = []map[string]interface{}{
-				{
-					"id":      "mvnd",
-					"version": "1.1.1",
-					"stacks":  []interface{}{"test-stack-id"},
-				},
-			}
-			ctx.StackID = "test-stack-id"
-			ctx.Buildpack.API = "0.6"
+	context("does not contribute distribution if mvn on PATH", func() {
+		var addToPath string
+		var mvnFilePath string
+
+		it.Before(func() {
+			var err error
+			addToPath, err = os.MkdirTemp("", "add-to-path")
+			Expect(err).NotTo(HaveOccurred())
+
+			t.Setenv("PATH", addToPath)
+
+			mvnFilePath = filepath.Join(addToPath, "mvn")
+		})
+
+		it.After(func() {
+			Expect(os.RemoveAll(addToPath)).To(Succeed())
+		})
+
+		it("contributes mvn on PATH", func() {
+			Expect(os.WriteFile(mvnFilePath, []byte{}, 0755)).ToNot(HaveOccurred())
+
+			ctx.Plan.Entries = append(ctx.Plan.Entries, libcnb.BuildpackPlanEntry{Name: "maven"})
 
 			result, err := mavenBuild.Build(ctx)
 			Expect(err).NotTo(HaveOccurred())
 
-			Expect(result.Layers).To(HaveLen(3))
-			Expect(result.Layers[0].Name()).To(Equal("mvnd"))
-			Expect(result.Layers[1].Name()).To(Equal("cache"))
-			Expect(result.Layers[2].Name()).To(Equal("application"))
-			Expect(result.Layers[2].(libbs.Application).Command).To(Equal(filepath.Join(ctx.Layers.Path, "mvnd", "bin", "mvnd")))
-			Expect(result.Layers[2].(libbs.Application).Arguments).To(Equal([]string{"test-argument"}))
-
-			Expect(result.BOM.Entries).To(HaveLen(1))
-			Expect(result.BOM.Entries[0].Name).To(Equal("mvnd"))
-			Expect(result.BOM.Entries[0].Build).To(BeTrue())
-			Expect(result.BOM.Entries[0].Launch).To(BeFalse())
+			Expect(result.Layers).To(HaveLen(2))
+			Expect(result.Layers[0].Name()).To(Equal("cache"))
+			Expect(result.Layers[1].Name()).To(Equal("application"))
+			Expect(result.Layers[1].(libbs.Application).Command).To(Equal(mvnFilePath))
+			Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{"test-argument"}))
 		})
 	})
 
@@ -478,39 +465,6 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			expected = "91dff74ef3ab7f5ccb5808b32c30d2ab35b9f699d9a613c05a7f45eb83dd4c3a"
 			Expect(mdMap["settings-security-sha256"]).To(Equal(expected))
 		})
-	})
-
-	it("converts CRLF formatting in the mvnw file to LF (unix) if present", func() {
-		Expect(ioutil.WriteFile(mvnwFilepath, []byte("test\r\n"), 0644)).To(Succeed())
-		ctx.StackID = "test-stack-id"
-
-		err := mavenBuild.CleanMvnWrapper(mvnwFilepath)
-		Expect(err).NotTo(HaveOccurred())
-
-		contents, err := ioutil.ReadFile(mvnwFilepath)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(bytes.Compare(contents, []byte("test\n"))).To(Equal(0))
-
-	})
-
-	it("does not perform format conversion in the mvnw file if not required", func() {
-		Expect(ioutil.WriteFile(mvnwFilepath, []byte("test\n"), 0644)).To(Succeed())
-		ctx.StackID = "test-stack-id"
-
-		err := mavenBuild.CleanMvnWrapper(mvnwFilepath)
-		Expect(err).NotTo(HaveOccurred())
-
-		contents, err := ioutil.ReadFile(mvnwFilepath)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(bytes.Compare(contents, []byte("test\n"))).To(Equal(0))
-	})
-
-	it("proceeds without error if format conversion wasn't possible", func() {
-		Expect(ioutil.WriteFile(mvnwFilepath, []byte("test\r\n"), 0444)).To(Succeed())
-		ctx.StackID = "test-stack-id"
-
-		_, err := mavenBuild.Build(ctx)
-		Expect(err).NotTo(HaveOccurred())
 	})
 }
 

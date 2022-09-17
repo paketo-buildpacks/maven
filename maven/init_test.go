@@ -27,6 +27,7 @@ func TestUnit(t *testing.T) {
 	suite := spec.New("maven", spec.Report(report.Terminal{}))
 	suite("Build", testBuild)
 	suite("Detect", testDetect)
+	suite("MavenManagers", testMavenManager)
 	suite("Distribution", testDistribution)
 	suite("MvndDistribution", testMvndDistribution)
 	suite.Run(t)
