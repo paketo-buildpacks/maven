@@ -17,12 +17,10 @@
 package maven
 
 import (
-	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -42,6 +40,9 @@ type Build struct {
 	Logger             bard.Logger
 	ApplicationFactory ApplicationFactory
 	TTY                bool
+	configResolver     libpak.ConfigurationResolver
+	depResolver        libpak.DependencyResolver
+	depCache           libpak.DependencyCache
 }
 
 type ApplicationFactory interface {
@@ -50,65 +51,52 @@ type ApplicationFactory interface {
 }
 
 func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
+	var err error
+
 	b.Logger.Title(context.Buildpack)
 	result := libcnb.NewBuildResult()
 
-	cr, err := libpak.NewConfigurationResolver(context.Buildpack, &b.Logger)
+	b.configResolver, err = libpak.NewConfigurationResolver(context.Buildpack, &b.Logger)
 	if err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to create configuration resolver\n%w", err)
 	}
 
-	dr, err := libpak.NewDependencyResolver(context)
+	b.depResolver, err = libpak.NewDependencyResolver(context)
 	if err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to create dependency resolver\n%w", err)
 	}
 
-	dc, err := libpak.NewDependencyCache(context)
+	b.depCache, err = libpak.NewDependencyCache(context)
 	if err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to create dependency cache\n%w", err)
 	}
-	dc.Logger = b.Logger
+	b.depCache.Logger = b.Logger
 
-	command := ""
-	if cr.ResolveBool("BP_MAVEN_DAEMON_ENABLED") {
-		dep, err := dr.Resolve("mvnd", "")
+	pr := libpak.PlanEntryResolver{Plan: context.Plan}
+
+	// install Maven, if needed
+	var command string
+	if _, found, err := pr.Resolve(PlanEntryMaven); err != nil {
+		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve Maven plan entry\n%w", err)
+	} else if found {
+		var layer libcnb.LayerContributor
+		var be *libcnb.BOMEntry
+
+		command, layer, be, err = b.installMaven(context)
 		if err != nil {
-			return libcnb.BuildResult{}, fmt.Errorf("unable to find dependency\n%w", err)
+			return libcnb.BuildResult{}, fmt.Errorf("unable to install Maven\n%w", err)
 		}
 
-		dist, be := NewMvndDistribution(dep, dc)
-		dist.Logger = b.Logger
-		result.Layers = append(result.Layers, dist)
-		result.BOM.Entries = append(result.BOM.Entries, be)
+		if layer != nil {
+			result.Layers = append(result.Layers, layer)
+		}
 
-		command = filepath.Join(context.Layers.Path, dist.Name(), "bin", "mvnd")
-	} else {
-		command = filepath.Join(context.Application.Path, "mvnw")
-		if _, err := os.Stat(command); os.IsNotExist(err) {
-			dep, err := dr.Resolve("maven", "")
-			if err != nil {
-				return libcnb.BuildResult{}, fmt.Errorf("unable to find dependency\n%w", err)
-			}
-
-			dist, be := NewDistribution(dep, dc)
-			dist.Logger = b.Logger
-			result.Layers = append(result.Layers, dist)
-			result.BOM.Entries = append(result.BOM.Entries, be)
-
-			command = filepath.Join(context.Layers.Path, dist.Name(), "bin", "mvn")
-		} else if err != nil {
-			return libcnb.BuildResult{}, fmt.Errorf("unable to stat %s\n%w", command, err)
-		} else {
-			if err := os.Chmod(command, 0755); err != nil {
-				b.Logger.Bodyf("WARNING: unable to chmod %s:\n%s", command, err)
-			}
-
-			if err = b.CleanMvnWrapper(command); err != nil {
-				b.Logger.Bodyf("WARNING: unable to clean mvnw file: %s\n%s", command, err)
-			}
+		if be != nil {
+			result.BOM.Entries = append(result.BOM.Entries, *be)
 		}
 	}
 
+	// setup Maven
 	u, err := user.Current()
 	if err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to determine user home directory\n%w", err)
@@ -118,12 +106,63 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	c.Logger = b.Logger
 	result.Layers = append(result.Layers, c)
 
-	args, err := libbs.ResolveArguments("BP_MAVEN_BUILD_ARGUMENTS", cr)
+	art, md, args, err := b.configureMaven(context)
 	if err != nil {
-		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve build arguments\n%w", err)
+		return libcnb.BuildResult{}, fmt.Errorf("unable to setup Maven\n%w", err)
 	}
 
-	pomFile, userSet := cr.Resolve("BP_MAVEN_POM_FILE")
+	if _, found, err := pr.Resolve(PlanEntryJVMApplicationPackage); err != nil {
+		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve JVM Application Package plan entry\n%w", err)
+	} else if found {
+		bomScanner := sbom.NewSyftCLISBOMScanner(context.Layers, effect.NewExecutor(), b.Logger)
+
+		// build a layer contributor to run Maven
+		a, err := b.ApplicationFactory.NewApplication(
+			md,
+			args,
+			art,
+			c,
+			command,
+			result.BOM,
+			context.Application.Path,
+			bomScanner,
+		)
+		if err != nil {
+			return libcnb.BuildResult{}, fmt.Errorf("unable to create application layer\n%w", err)
+		}
+
+		a.Logger = b.Logger
+		result.Layers = append(result.Layers, a)
+	}
+
+	return result, nil
+}
+
+func (b Build) installMaven(context libcnb.BuildContext) (string, libcnb.LayerContributor, *libcnb.BOMEntry, error) {
+	// be careful changing this, the order does matter to a degree
+	managers := []MavenManager{
+		NewDaemonMavenManager(b.configResolver, b.depResolver, b.depCache, context.Layers.Path),
+		NewStandardMavenManager(context.Application.Path, b.configResolver, b.depResolver, b.depCache, context.Layers.Path),
+		NewWrapperMavenManager(context.Application.Path, b.configResolver, b.depResolver, b.depCache),
+		NewNoopMavenManager(),
+	}
+
+	for _, manager := range managers {
+		if manager.ShouldInstall() {
+			return manager.Install()
+		}
+	}
+
+	return "", nil, nil, fmt.Errorf("unable to install Maven")
+}
+
+func (b Build) configureMaven(context libcnb.BuildContext) (libbs.ArtifactResolver, map[string]interface{}, []string, error) {
+	args, err := libbs.ResolveArguments("BP_MAVEN_BUILD_ARGUMENTS", b.configResolver)
+	if err != nil {
+		return libbs.ArtifactResolver{}, map[string]interface{}{}, []string{}, fmt.Errorf("unable to resolve build arguments\n%w", err)
+	}
+
+	pomFile, userSet := b.configResolver.Resolve("BP_MAVEN_POM_FILE")
 	if userSet {
 		args = append([]string{"--file", pomFile}, args...)
 	}
@@ -135,46 +174,25 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 
 	md := map[string]interface{}{}
 	if binding, ok, err := bindings.ResolveOne(context.Platform.Bindings, bindings.OfType("maven")); err != nil {
-		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve binding\n%w", err)
+		return libbs.ArtifactResolver{}, map[string]interface{}{}, []string{}, fmt.Errorf("unable to resolve binding\n%w", err)
 	} else if ok {
 		args, err = handleMavenSettings(binding, args, md)
 		if err != nil {
-			return libcnb.BuildResult{}, fmt.Errorf("unable to process maven settings from binding\n%w", err)
+			return libbs.ArtifactResolver{}, map[string]interface{}{}, []string{}, fmt.Errorf("unable to process maven settings from binding\n%w", err)
 		}
 	} else if !ok {
-		settingsPath, _ := cr.Resolve("BP_MAVEN_SETTINGS_PATH")
+		settingsPath, _ := b.configResolver.Resolve("BP_MAVEN_SETTINGS_PATH")
 		if settingsPath != "" {
 			args = append([]string{fmt.Sprintf("--settings=%s", settingsPath)}, args...)
 		}
 	}
 
-	art := libbs.ArtifactResolver{
+	return libbs.ArtifactResolver{
 		ArtifactConfigurationKey: "BP_MAVEN_BUILT_ARTIFACT",
-		ConfigurationResolver:    cr,
+		ConfigurationResolver:    b.configResolver,
 		ModuleConfigurationKey:   "BP_MAVEN_BUILT_MODULE",
 		InterestingFileDetector:  libbs.JARInterestingFileDetector{},
-	}
-
-	bomScanner := sbom.NewSyftCLISBOMScanner(context.Layers, effect.NewExecutor(), b.Logger)
-
-	a, err := b.ApplicationFactory.NewApplication(
-		md,
-		args,
-		art,
-		c,
-		command,
-		result.BOM,
-		context.Application.Path,
-		bomScanner,
-	)
-	if err != nil {
-		return libcnb.BuildResult{}, fmt.Errorf("unable to create application layer\n%w", err)
-	}
-
-	a.Logger = b.Logger
-	result.Layers = append(result.Layers, a)
-
-	return result, nil
+	}, md, args, nil
 }
 
 func handleMavenSettings(binding libcnb.Binding, args []string, md map[string]interface{}) ([]string, error) {
@@ -222,25 +240,4 @@ func contains(strings []string, stringsSearchedAfter []string) bool {
 		}
 	}
 	return false
-}
-
-func (b Build) CleanMvnWrapper(fileName string) error {
-
-	fileContents, err := ioutil.ReadFile(fileName)
-	if err != nil {
-		return err
-	}
-
-	// the mvnw file can contain Windows CRLF line endings, e.g. from a 'git clone' on windows
-	// we replace these so that the unix container can execute the wrapper successfully
-
-	// replace CRLF with LF
-	fileContents = bytes.ReplaceAll(fileContents, []byte{13}, []byte{})
-
-	err = ioutil.WriteFile(fileName, fileContents, 0755)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

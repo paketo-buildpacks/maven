@@ -40,6 +40,17 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 	it.Before(func() {
 		var err error
 
+		ctx.Buildpack.Metadata = map[string]interface{}{
+			"configurations": []map[string]interface{}{
+				{
+					"name":    "BP_MAVEN_POM_FILE",
+					"default": "pom.xml",
+					"build":   true,
+					"detect":  true,
+				},
+			},
+		}
+
 		ctx.Application.Path, err = ioutil.TempDir("", "maven")
 		Expect(err).NotTo(HaveOccurred())
 	})
@@ -48,17 +59,88 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 		Expect(os.RemoveAll(ctx.Application.Path)).To(Succeed())
 	})
 
-	it("fails without pom.xml", func() {
-		os.Setenv("BP_MAVEN_POM_FILE", "pom.xml")
-		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{}))
+	context("there is no pom.xml", func() {
+		it("only provides looking at default location", func() {
+			Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{
+				Pass: true,
+				Plans: []libcnb.BuildPlan{
+					{
+						Provides: []libcnb.BuildPlanProvide{
+							{Name: "maven"},
+						},
+						Requires: []libcnb.BuildPlanRequire{
+							{Name: "jdk"},
+						},
+					},
+					{
+						Provides: []libcnb.BuildPlanProvide{
+							{Name: "jvm-application-package"},
+						},
+					},
+					{
+						Provides: []libcnb.BuildPlanProvide{
+							{Name: "jvm-application-package"},
+							{Name: "maven"},
+						},
+					},
+				},
+			}))
+		})
+
+		it("only provides when BP_MAVEN_POM_FILE is set to a place that does not exist", func() {
+			t.Setenv("BP_MAVEN_POM_FILE", "pom-does-not-exist.xml")
+
+			Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{
+				Pass: true,
+				Plans: []libcnb.BuildPlan{
+					{
+						Provides: []libcnb.BuildPlanProvide{
+							{Name: "maven"},
+						},
+						Requires: []libcnb.BuildPlanRequire{
+							{Name: "jdk"},
+						},
+					},
+					{
+						Provides: []libcnb.BuildPlanProvide{
+							{Name: "jvm-application-package"},
+						},
+					},
+					{
+						Provides: []libcnb.BuildPlanProvide{
+							{Name: "jvm-application-package"},
+							{Name: "maven"},
+						},
+					},
+				},
+			}))
+		})
 	})
 
-	it("passes with pom.xml", func() {
+	it("passes with pom.xml at the default location", func() {
 		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "pom.xml"), []byte{}, 0644))
 
 		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{
 			Pass: true,
 			Plans: []libcnb.BuildPlan{
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "jdk"},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
+						{Name: "jdk"},
+						{Name: "maven"},
+					},
+				},
 				{
 					Provides: []libcnb.BuildPlanProvide{
 						{Name: "jvm-application-package"},
@@ -74,14 +156,32 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 		}))
 	})
 
-	it("passes with a custom pom.xml", func() {
+	it("passes with a pom.xml at a custom location", func() {
 		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "pom2.xml"), []byte{}, 0644))
 
-		os.Setenv("BP_MAVEN_POM_FILE", "pom2.xml")
+		t.Setenv("BP_MAVEN_POM_FILE", "pom2.xml")
 
 		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{
 			Pass: true,
 			Plans: []libcnb.BuildPlan{
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "jdk"},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
+						{Name: "jdk"},
+						{Name: "maven"},
+					},
+				},
 				{
 					Provides: []libcnb.BuildPlanProvide{
 						{Name: "jvm-application-package"},

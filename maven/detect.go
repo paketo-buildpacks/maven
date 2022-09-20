@@ -43,29 +43,47 @@ func (Detect) Detect(context libcnb.DetectContext) (libcnb.DetectResult, error) 
 		return libcnb.DetectResult{}, err
 	}
 
-	pomFile, _ := cr.Resolve("BP_MAVEN_POM_FILE")
-	file := filepath.Join(context.Application.Path, pomFile)
-	_, err = os.Stat(file)
-	if os.IsNotExist(err) {
-		return libcnb.DetectResult{Pass: false}, nil
-	} else if err != nil {
-		return libcnb.DetectResult{}, fmt.Errorf("unable to determine if %s exists\n%w", file, err)
-	}
-
-	return libcnb.DetectResult{
+	result := libcnb.DetectResult{
 		Pass: true,
 		Plans: []libcnb.BuildPlan{
+			// just offer to provide Maven
+			{
+				Provides: []libcnb.BuildPlanProvide{
+					{Name: PlanEntryMaven},
+				},
+				Requires: []libcnb.BuildPlanRequire{
+					{Name: PlanEntryJDK},
+				},
+			},
+			// just offer to build with Maven
+			{
+				Provides: []libcnb.BuildPlanProvide{
+					{Name: PlanEntryJVMApplicationPackage},
+				},
+			},
+			// offer to install & build with Maven
 			{
 				Provides: []libcnb.BuildPlanProvide{
 					{Name: PlanEntryJVMApplicationPackage},
 					{Name: PlanEntryMaven},
 				},
-				Requires: []libcnb.BuildPlanRequire{
-					{Name: PlanEntrySyft},
-					{Name: PlanEntryJDK},
-					{Name: PlanEntryMaven},
-				},
 			},
 		},
-	}, nil
+	}
+
+	pomFile, _ := cr.Resolve("BP_MAVEN_POM_FILE")
+	file := filepath.Join(context.Application.Path, pomFile)
+	if _, err = os.Stat(file); err != nil && !os.IsNotExist(err) {
+		return libcnb.DetectResult{}, fmt.Errorf("unable to determine if %s exists\n%w", file, err)
+	} else if err == nil {
+		for i := 1; i < len(result.Plans); i++ {
+			result.Plans[i].Requires = []libcnb.BuildPlanRequire{
+				{Name: PlanEntrySyft},
+				{Name: PlanEntryJDK},
+				{Name: PlanEntryMaven},
+			}
+		}
+	}
+
+	return result, nil
 }
