@@ -59,6 +59,15 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 		Expect(os.RemoveAll(ctx.Application.Path)).To(Succeed())
 	})
 
+	context("there is a META-INF/MANIFEST.MF", func() {
+		it("fails", func() {
+			Expect(os.MkdirAll(filepath.Join(ctx.Application.Path, "META-INF"), 0755)).Should(Succeed())
+			Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "META-INF", "MANIFEST.MF"), []byte{}, 0644))
+
+			Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{}))
+		})
+	})
+
 	context("there is no pom.xml", func() {
 		it("only provides looking at default location", func() {
 			Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{

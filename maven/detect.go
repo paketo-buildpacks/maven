@@ -37,6 +37,12 @@ const (
 type Detect struct{}
 
 func (Detect) Detect(context libcnb.DetectContext) (libcnb.DetectResult, error) {
+	// if MANIFEST.MF exists, we have a WAR/JAR so we don't build
+	_, err := os.Stat(filepath.Join(context.Application.Path, "META-INF", "MANIFEST.MF"))
+	if err == nil {
+		return libcnb.DetectResult{}, nil
+	}
+
 	l := bard.NewLogger(ioutil.Discard)
 	cr, err := libpak.NewConfigurationResolver(context.Buildpack, &l)
 	if err != nil {
