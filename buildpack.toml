@@ -66,6 +66,18 @@ api = "0.7"
     description = "the path to a Maven settings file"
     name = "BP_MAVEN_SETTINGS_PATH"
 
+  [[metadata.configurations]]
+    build = true
+    default = ""
+    description = "colon separated list of glob patterns, matched source files are included"
+    name = "BP_INCLUDE_FILES"
+
+  [[metadata.configurations]]
+    build = true
+    default = ""
+    description = "colon separated list of glob patterns, matched source files are removed"
+    name = "BP_EXCLUDE_FILES"
+
   [[metadata.dependencies]]
     cpes = ["cpe:2.3:a:apache:maven:3.8.6:*:*:*:*:*:*:*"]
     id = "maven"
