@@ -18,7 +18,7 @@ package maven
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 
@@ -43,7 +43,7 @@ func (Detect) Detect(context libcnb.DetectContext) (libcnb.DetectResult, error) 
 		return libcnb.DetectResult{}, nil
 	}
 
-	l := bard.NewLogger(ioutil.Discard)
+	l := bard.NewLogger(io.Discard)
 	cr, err := libpak.NewConfigurationResolver(context.Buildpack, &l)
 	if err != nil {
 		return libcnb.DetectResult{}, err
@@ -61,12 +61,6 @@ func (Detect) Detect(context libcnb.DetectContext) (libcnb.DetectResult, error) 
 					{Name: PlanEntryJDK},
 				},
 			},
-			// just offer to build with Maven
-			{
-				Provides: []libcnb.BuildPlanProvide{
-					{Name: PlanEntryJVMApplicationPackage},
-				},
-			},
 			// offer to install & build with Maven
 			{
 				Provides: []libcnb.BuildPlanProvide{
@@ -82,6 +76,14 @@ func (Detect) Detect(context libcnb.DetectContext) (libcnb.DetectResult, error) 
 	if _, err = os.Stat(file); err != nil && !os.IsNotExist(err) {
 		return libcnb.DetectResult{}, fmt.Errorf("unable to determine if %s exists\n%w", file, err)
 	} else if err == nil {
+		// buildplan entry to support build-only
+		result.Plans = append(result.Plans, libcnb.BuildPlan{
+			Provides: []libcnb.BuildPlanProvide{
+				{Name: PlanEntryJVMApplicationPackage},
+			},
+		})
+
+		// add requires for install & build
 		for i := 1; i < len(result.Plans); i++ {
 			result.Plans[i].Requires = []libcnb.BuildPlanRequire{
 				{Name: PlanEntrySyft},
