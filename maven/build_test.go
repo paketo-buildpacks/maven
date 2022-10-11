@@ -327,6 +327,17 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		})
 	})
 
+	context("maven is not in the buildplan nor on the path", func() {
+		it.Before(func() {
+			t.Setenv("PATH", "")
+		})
+
+		it("returns a meaningful error", func() {
+			_, err := mavenBuild.Build(ctx)
+			Expect(err).To(MatchError(ContainSubstring("unable to lookup 'mvn'")))
+		})
+	})
+
 	context("maven settings bindings exists", func() {
 		var result libcnb.BuildResult
 

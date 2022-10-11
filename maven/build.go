@@ -94,6 +94,11 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 		if be != nil {
 			result.BOM.Entries = append(result.BOM.Entries, *be)
 		}
+	} else {
+		command, _, _, err = NewNoopMavenManager().Install()
+		if err != nil {
+			return libcnb.BuildResult{}, fmt.Errorf("unable pick Maven command\n%w", err)
+		}
 	}
 
 	// setup Maven
