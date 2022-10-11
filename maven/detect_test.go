@@ -17,7 +17,6 @@
 package maven_test
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -51,7 +50,7 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 			},
 		}
 
-		ctx.Application.Path, err = ioutil.TempDir("", "maven")
+		ctx.Application.Path, err = os.MkdirTemp("", "maven")
 		Expect(err).NotTo(HaveOccurred())
 	})
 
@@ -62,7 +61,7 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 	context("there is a META-INF/MANIFEST.MF", func() {
 		it("fails", func() {
 			Expect(os.MkdirAll(filepath.Join(ctx.Application.Path, "META-INF"), 0755)).Should(Succeed())
-			Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "META-INF", "MANIFEST.MF"), []byte{}, 0644))
+			Expect(os.WriteFile(filepath.Join(ctx.Application.Path, "META-INF", "MANIFEST.MF"), []byte{}, 0644))
 
 			Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{}))
 		})
@@ -79,11 +78,6 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 						},
 						Requires: []libcnb.BuildPlanRequire{
 							{Name: "jdk"},
-						},
-					},
-					{
-						Provides: []libcnb.BuildPlanProvide{
-							{Name: "jvm-application-package"},
 						},
 					},
 					{
@@ -113,11 +107,6 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 					{
 						Provides: []libcnb.BuildPlanProvide{
 							{Name: "jvm-application-package"},
-						},
-					},
-					{
-						Provides: []libcnb.BuildPlanProvide{
-							{Name: "jvm-application-package"},
 							{Name: "maven"},
 						},
 					},
@@ -127,7 +116,7 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 	})
 
 	it("passes with pom.xml at the default location", func() {
-		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "pom.xml"), []byte{}, 0644))
+		Expect(os.WriteFile(filepath.Join(ctx.Application.Path, "pom.xml"), []byte{}, 0644))
 
 		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{
 			Pass: true,
@@ -143,6 +132,7 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 				{
 					Provides: []libcnb.BuildPlanProvide{
 						{Name: "jvm-application-package"},
+						{Name: "maven"},
 					},
 					Requires: []libcnb.BuildPlanRequire{
 						{Name: "syft"},
@@ -153,7 +143,6 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 				{
 					Provides: []libcnb.BuildPlanProvide{
 						{Name: "jvm-application-package"},
-						{Name: "maven"},
 					},
 					Requires: []libcnb.BuildPlanRequire{
 						{Name: "syft"},
@@ -166,7 +155,7 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 	})
 
 	it("passes with a pom.xml at a custom location", func() {
-		Expect(ioutil.WriteFile(filepath.Join(ctx.Application.Path, "pom2.xml"), []byte{}, 0644))
+		Expect(os.WriteFile(filepath.Join(ctx.Application.Path, "pom2.xml"), []byte{}, 0644))
 
 		t.Setenv("BP_MAVEN_POM_FILE", "pom2.xml")
 
@@ -184,6 +173,7 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 				{
 					Provides: []libcnb.BuildPlanProvide{
 						{Name: "jvm-application-package"},
+						{Name: "maven"},
 					},
 					Requires: []libcnb.BuildPlanRequire{
 						{Name: "syft"},
@@ -194,7 +184,6 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 				{
 					Provides: []libcnb.BuildPlanProvide{
 						{Name: "jvm-application-package"},
-						{Name: "maven"},
 					},
 					Requires: []libcnb.BuildPlanRequire{
 						{Name: "syft"},

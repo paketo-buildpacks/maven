@@ -18,7 +18,6 @@ package maven_test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -46,7 +45,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 	it.Before(func() {
 		var err error
 
-		ctx.Application.Path, err = ioutil.TempDir("", "build-application")
+		ctx.Application.Path, err = os.MkdirTemp("", "build-application")
 		Expect(err).NotTo(HaveOccurred())
 
 		ctx.Buildpack.Metadata = map[string]interface{}{
@@ -57,7 +56,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 
 		ctx.Plan.Entries = append(ctx.Plan.Entries, libcnb.BuildpackPlanEntry{Name: "jvm-application-package"})
 
-		ctx.Layers.Path, err = ioutil.TempDir("", "build-layers")
+		ctx.Layers.Path, err = os.MkdirTemp("", "build-layers")
 		Expect(err).NotTo(HaveOccurred())
 		mavenBuild = maven.Build{
 			ApplicationFactory: &FakeApplicationFactory{},
@@ -73,7 +72,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 	})
 
 	it("adds --batch-mode if terminal is not tty and the user did not specify it", func() {
-		Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
+		Expect(os.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
 		ctx.StackID = "test-stack-id"
 		mavenBuild.TTY = false
 
@@ -96,7 +95,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		})
 
 		it("adds the --file argument if set", func() {
-			Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
+			Expect(os.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
 
 			result, err := mavenBuild.Build(ctx)
 			Expect(err).NotTo(HaveOccurred())
@@ -115,7 +114,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		})
 
 		it("does not add --batch-mode a second time if terminal is not tty and the user already specified it", func() {
-			Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
+			Expect(os.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
 			ctx.StackID = "test-stack-id"
 			mavenBuild.TTY = false
 
@@ -139,7 +138,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		})
 
 		it("sets the settings path", func() {
-			Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
+			Expect(os.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
 
 			result, err := mavenBuild.Build(ctx)
 			Expect(err).NotTo(HaveOccurred())
@@ -160,7 +159,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		})
 
 		it("sets the settings path", func() {
-			Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
+			Expect(os.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
 
 			result, err := mavenBuild.Build(ctx)
 			Expect(err).NotTo(HaveOccurred())
@@ -175,7 +174,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 	it("does not contribute distribution if wrapper exists", func() {
 		ctx.Plan.Entries = append(ctx.Plan.Entries, libcnb.BuildpackPlanEntry{Name: "maven"})
 
-		Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
+		Expect(os.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
 		ctx.StackID = "test-stack-id"
 
 		result, err := mavenBuild.Build(ctx)
@@ -327,14 +326,26 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		})
 	})
 
+	context("maven is not in the buildplan nor on the path", func() {
+		it.Before(func() {
+			t.Setenv("PATH", "")
+		})
+
+		it("returns a meaningful error", func() {
+			_, err := mavenBuild.Build(ctx)
+			Expect(err).To(MatchError(ContainSubstring("unable to lookup 'mvn'")))
+		})
+	})
+
 	context("maven settings bindings exists", func() {
 		var result libcnb.BuildResult
 
 		it.Before(func() {
 			var err error
 			ctx.StackID = "test-stack-id"
-			ctx.Platform.Path, err = ioutil.TempDir("", "maven-test-platform")
-			Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
+			ctx.Platform.Path, err = os.MkdirTemp("", "maven-test-platform")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(os.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
 			ctx.Platform.Bindings = libcnb.Bindings{
 				{
 					Name:   "some-maven",
@@ -346,7 +357,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			mavenSettingsPath, ok := ctx.Platform.Bindings[0].SecretFilePath("settings.xml")
 			Expect(os.MkdirAll(filepath.Dir(mavenSettingsPath), 0777)).To(Succeed())
 			Expect(ok).To(BeTrue())
-			Expect(ioutil.WriteFile(
+			Expect(os.WriteFile(
 				mavenSettingsPath,
 				[]byte("maven-settings-content"),
 				0644,
@@ -387,7 +398,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			})
 
 			it("sets the settings path to the bindings instead of the env var", func() {
-				Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
+				Expect(os.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
 
 				result, err := mavenBuild.Build(ctx)
 				Expect(err).NotTo(HaveOccurred())
@@ -406,8 +417,9 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		it.Before(func() {
 			var err error
 			ctx.StackID = "test-stack-id"
-			ctx.Platform.Path, err = ioutil.TempDir("", "maven-test-platform")
-			Expect(ioutil.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
+			ctx.Platform.Path, err = os.MkdirTemp("", "maven-test-platform")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(os.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
 			ctx.Platform.Bindings = libcnb.Bindings{
 				{
 					Name: "some-maven",
@@ -422,7 +434,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			mavenSettingsPath, ok := ctx.Platform.Bindings[0].SecretFilePath("settings.xml")
 			Expect(os.MkdirAll(filepath.Dir(mavenSettingsPath), 0777)).To(Succeed())
 			Expect(ok).To(BeTrue())
-			Expect(ioutil.WriteFile(
+			Expect(os.WriteFile(
 				mavenSettingsPath,
 				[]byte("maven-settings-content"),
 				0644,
@@ -431,7 +443,7 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 			mavenSettingsSecurityPath, ok := ctx.Platform.Bindings[0].SecretFilePath("settings-security.xml")
 			Expect(os.MkdirAll(filepath.Dir(mavenSettingsSecurityPath), 0777)).To(Succeed())
 			Expect(ok).To(BeTrue())
-			Expect(ioutil.WriteFile(
+			Expect(os.WriteFile(
 				mavenSettingsSecurityPath,
 				[]byte("maven-settings-security-content"),
 				0644,
