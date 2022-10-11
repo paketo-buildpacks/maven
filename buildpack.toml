@@ -93,14 +93,14 @@ api = "0.7"
       uri = "https://www.apache.org/licenses/"
 
   [[metadata.dependencies]]
-    cpes = ["cpe:2.3:a:apache:mvnd:0.8.1:*:*:*:*:*:*:*"]
+    cpes = ["cpe:2.3:a:apache:mvnd:0.8.2:*:*:*:*:*:*:*"]
     id = "mvnd"
     name = "Apache Maven Daemon"
-    purl = "pkg:generic/apache-mvnd@0.8.1"
-    sha256 = "b7b8c409f01eaf90390fe98dfd62740ddd84b4f33e0d42cb172eddef221a5148"
+    purl = "pkg:generic/apache-mvnd@0.8.2"
+    sha256 = "a78b8c107cc7266b7b831d75eadcca4831846405274479b50c5e5ab6a1b5ec24"
     stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
-    uri = "https://github.com/apache/maven-mvnd/releases/download/0.8.1/maven-mvnd-0.8.1-linux-amd64.zip"
-    version = "0.8.1"
+    uri = "https://github.com/apache/maven-mvnd/releases/download/0.8.2/maven-mvnd-0.8.2-linux-amd64.zip"
+    version = "0.8.2"
 
     [[metadata.dependencies.licenses]]
       type = "Apache-2.0"
