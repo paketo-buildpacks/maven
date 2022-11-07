@@ -79,14 +79,14 @@ api = "0.7"
     name = "BP_EXCLUDE_FILES"
 
   [[metadata.dependencies]]
-    cpes = ["cpe:2.3:a:apache:maven:3.8.6:*:*:*:*:*:*:*"]
+    cpes = ["cpe:2.3:a:apache:maven:4.0.0:*:*:*:*:*:*:*"]
     id = "maven"
     name = "Apache Maven"
-    purl = "pkg:generic/apache-maven@3.8.6"
-    sha256 = "c7047a48deb626abf26f71ab3643d296db9b1e67f1faa7d988637deac876b5a9"
+    purl = "pkg:generic/apache-maven@4.0.0"
+    sha256 = "4b133c01af2559501c13e6366149c65db87178d0ac354fd1f3204463b6bac7b2"
     stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
-    uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.8.6/apache-maven-3.8.6-bin.tar.gz"
-    version = "3.8.6"
+    uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/4.0.0-alpha-2/apache-maven-4.0.0-alpha-2-bin.tar.gz"
+    version = "4.0.0"
 
     [[metadata.dependencies.licenses]]
       type = "Apache-2.0"
