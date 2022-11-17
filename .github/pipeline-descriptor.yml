@@ -17,14 +17,28 @@ docker_credentials:
   password: ${{ secrets.JAVA_GCLOUD_SERVICE_ACCOUNT_KEY }}
 
 dependencies:
-- id:   maven
-  uses: docker://ghcr.io/paketo-buildpacks/actions/maven-dependency:main
+- name:            Maven 3
+  id:              maven
+  uses:            docker://ghcr.io/paketo-buildpacks/actions/maven-dependency:main
+  version_pattern: "^3\\.[\\d]+\\.[\\d]+"
   with:
-    uri:         https://repo1.maven.org/maven2
-    group_id:    org.apache.maven
-    artifact_id: apache-maven
-    classifier:  bin
-    packaging:   tar.gz
+    uri:           https://repo1.maven.org/maven2
+    group_id:      org.apache.maven
+    artifact_id:   apache-maven
+    classifier:    bin
+    packaging:     tar.gz
+    version_regex: ^3\\.[\\d]+\\.[\\d]+$
+- name:            Maven 4
+  id:              maven
+  uses:            docker://ghcr.io/paketo-buildpacks/actions/maven-dependency:main
+  version_pattern: "^4\\.[\\d]+\\.[\\d]+"
+  with:
+    uri:           https://repo1.maven.org/maven2
+    group_id:      org.apache.maven
+    artifact_id:   apache-maven
+    classifier:    bin
+    packaging:     tar.gz
+    version_regex: ^4\\.[\\d]+\\.[\\d]+-.*$
 - id:   mvnd
   uses: docker://ghcr.io/paketo-buildpacks/actions/github-release-dependency:main
   with:

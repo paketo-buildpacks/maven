@@ -3,6 +3,7 @@ package maven_test
 import (
 	"bytes"
 	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
@@ -10,6 +11,7 @@ import (
 	"github.com/buildpacks/libcnb"
 	. "github.com/onsi/gomega"
 	"github.com/paketo-buildpacks/libpak"
+	"github.com/paketo-buildpacks/libpak/bard"
 	"github.com/paketo-buildpacks/maven/v6/maven"
 	"github.com/sclevine/spec"
 )
@@ -41,25 +43,52 @@ func testMavenManager(t *testing.T, context spec.G, it spec.S) {
 	})
 
 	context("StandardMavenManager", func() {
+		var dc libpak.DependencyCache
+		var dep3, dep4, dep5 libpak.BuildpackDependency
+
 		it.Before(func() {
-			dep := libpak.BuildpackDependency{
+			dep3 = libpak.BuildpackDependency{
 				URI:     "https://localhost/stub-maven-distribution.tar.gz",
 				SHA256:  "31ba45356e22aff670af88170f43ff82328e6f323c3ce891ba422bd1031e3308",
-				Version: "1.1.1",
+				Version: "3.3.3",
 				ID:      "maven",
 				Name:    "Maven",
 			}
-			dc := libpak.DependencyCache{CachePath: "testdata"}
+			dep4 = libpak.BuildpackDependency{
+				URI:     "https://localhost/stub-maven-distribution.tar.gz",
+				SHA256:  "31ba45356e22aff670af88170f43ff82328e6f323c3ce891ba422bd1031e3308",
+				Version: "4.4.4",
+				ID:      "maven",
+				Name:    "Maven",
+			}
+			dep5 = libpak.BuildpackDependency{
+				URI:     "https://localhost/stub-maven-distribution.tar.gz",
+				SHA256:  "31ba45356e22aff670af88170f43ff82328e6f323c3ce891ba422bd1031e3308",
+				Version: "5.5.5",
+				ID:      "maven",
+				Name:    "Maven",
+			}
+			dc = libpak.DependencyCache{CachePath: "testdata"}
 
 			mavenManager = maven.NewStandardMavenManager(
 				ctx.Application.Path,
-				libpak.ConfigurationResolver{},
+				libpak.ConfigurationResolver{
+					Configurations: []libpak.BuildpackConfiguration{
+						{
+							Build:   true,
+							Launch:  false,
+							Default: "3",
+							Name:    "BP_MAVEN_VERSION",
+						},
+					},
+				},
 				libpak.DependencyResolver{
-					Dependencies: []libpak.BuildpackDependency{dep},
+					Dependencies: []libpak.BuildpackDependency{dep3, dep5},
 					StackID:      "test-stack",
 				},
 				dc,
-				"/layers")
+				"/layers",
+				bard.NewLogger(io.Discard))
 		})
 
 		it("shouldn't install", func() {
@@ -80,6 +109,33 @@ func testMavenManager(t *testing.T, context spec.G, it spec.S) {
 
 			Expect(layerContrib.Name()).To(Equal("maven"))
 			Expect(layerContrib.(maven.Distribution)).ToNot(BeNil())
+		})
+
+		context("user sets version to 4", func() {
+			it.Before(func() {
+				t.Setenv("BP_MAVEN_VERSION", "4")
+
+				mavenManager = maven.NewStandardMavenManager(
+					ctx.Application.Path,
+					libpak.ConfigurationResolver{},
+					libpak.DependencyResolver{
+						Dependencies: []libpak.BuildpackDependency{dep4, dep5},
+						StackID:      "test-stack",
+					},
+					dc,
+					"/layers",
+					bard.NewLogger(io.Discard))
+			})
+
+			it("installs a specific version", func() {
+				cmd, layerContrib, _, err := mavenManager.Install()
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(cmd).To(Equal("/layers/maven/bin/mvn"))
+
+				Expect(layerContrib.Name()).To(Equal("maven"))
+				Expect(layerContrib.(maven.Distribution)).ToNot(BeNil())
+			})
 		})
 	})
 
@@ -110,7 +166,8 @@ func testMavenManager(t *testing.T, context spec.G, it spec.S) {
 					StackID:      "test-stack",
 				},
 				dc,
-				"/layers")
+				"/layers",
+				bard.NewLogger(io.Discard))
 		})
 
 		it("should install", func() {
@@ -135,13 +192,9 @@ func testMavenManager(t *testing.T, context spec.G, it spec.S) {
 
 	context("WrapperMavenManager", func() {
 		it.Before(func() {
-			dc := libpak.DependencyCache{CachePath: "testdata"}
-
 			mavenManager = maven.NewWrapperMavenManager(
 				ctx.Application.Path,
-				libpak.ConfigurationResolver{},
-				libpak.DependencyResolver{},
-				dc)
+				bard.NewLogger(io.Discard))
 		})
 
 		it("should install", func() {
@@ -226,7 +279,7 @@ func testMavenManager(t *testing.T, context spec.G, it spec.S) {
 
 			mvnFilePath = filepath.Join(addToPath, "mvn")
 
-			mavenManager = maven.NewNoopMavenManager()
+			mavenManager = maven.NewNoopMavenManager(bard.NewLogger(io.Discard))
 		})
 
 		it("should install", func() {

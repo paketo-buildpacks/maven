@@ -95,7 +95,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 			result.BOM.Entries = append(result.BOM.Entries, *be)
 		}
 	} else {
-		command, _, _, err = NewNoopMavenManager().Install()
+		command, _, _, err = NewNoopMavenManager(b.Logger).Install()
 		if err != nil {
 			return libcnb.BuildResult{}, fmt.Errorf("unable pick Maven command\n%w", err)
 		}
@@ -146,10 +146,10 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 func (b Build) installMaven(context libcnb.BuildContext) (string, libcnb.LayerContributor, *libcnb.BOMEntry, error) {
 	// be careful changing this, the order does matter to a degree
 	managers := []MavenManager{
-		NewDaemonMavenManager(b.configResolver, b.depResolver, b.depCache, context.Layers.Path),
-		NewStandardMavenManager(context.Application.Path, b.configResolver, b.depResolver, b.depCache, context.Layers.Path),
-		NewWrapperMavenManager(context.Application.Path, b.configResolver, b.depResolver, b.depCache),
-		NewNoopMavenManager(),
+		NewDaemonMavenManager(b.configResolver, b.depResolver, b.depCache, context.Layers.Path, b.Logger),
+		NewStandardMavenManager(context.Application.Path, b.configResolver, b.depResolver, b.depCache, context.Layers.Path, b.Logger),
+		NewWrapperMavenManager(context.Application.Path, b.Logger),
+		NewNoopMavenManager(b.Logger),
 	}
 
 	for _, manager := range managers {

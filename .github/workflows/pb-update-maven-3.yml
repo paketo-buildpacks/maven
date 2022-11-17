@@ -1,4 +1,4 @@
-name: Update maven
+name: Update Maven 3
 "on":
     schedule:
         - cron: 0 5 * * 1-5
@@ -49,6 +49,7 @@ jobs:
                 group_id: org.apache.maven
                 packaging: tar.gz
                 uri: https://repo1.maven.org/maven2
+                version_regex: ^3\\.[\\d]+\\.[\\d]+$
             - name: Update Buildpack Dependency
               id: buildpack
               run: |-
@@ -97,18 +98,18 @@ jobs:
                 SHA256: ${{ steps.dependency.outputs.sha256 }}
                 URI: ${{ steps.dependency.outputs.uri }}
                 VERSION: ${{ steps.dependency.outputs.version }}
-                VERSION_PATTERN: '[\d]+\.[\d]+\.[\d]+'
+                VERSION_PATTERN: ^3\.[\d]+\.[\d]+
             - uses: peter-evans/create-pull-request@v4
               with:
                 author: ${{ secrets.JAVA_GITHUB_USERNAME }} <${{ secrets.JAVA_GITHUB_USERNAME }}@users.noreply.github.com>
-                body: Bumps `maven` from `${{ steps.buildpack.outputs.old-version }}` to `${{ steps.buildpack.outputs.new-version }}`.
-                branch: update/buildpack/maven
+                body: Bumps `Maven 3` from `${{ steps.buildpack.outputs.old-version }}` to `${{ steps.buildpack.outputs.new-version }}`.
+                branch: update/buildpack/maven-3
                 commit-message: |-
-                    Bump maven from ${{ steps.buildpack.outputs.old-version }} to ${{ steps.buildpack.outputs.new-version }}
+                    Bump Maven 3 from ${{ steps.buildpack.outputs.old-version }} to ${{ steps.buildpack.outputs.new-version }}
 
-                    Bumps maven from ${{ steps.buildpack.outputs.old-version }} to ${{ steps.buildpack.outputs.new-version }}.
+                    Bumps Maven 3 from ${{ steps.buildpack.outputs.old-version }} to ${{ steps.buildpack.outputs.new-version }}.
                 delete-branch: true
                 labels: ${{ steps.buildpack.outputs.version-label }}, type:dependency-upgrade
                 signoff: true
-                title: Bump maven from ${{ steps.buildpack.outputs.old-version }} to ${{ steps.buildpack.outputs.new-version }}
+                title: Bump Maven 3 from ${{ steps.buildpack.outputs.old-version }} to ${{ steps.buildpack.outputs.new-version }}
                 token: ${{ secrets.JAVA_GITHUB_TOKEN }}
