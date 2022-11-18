@@ -27,7 +27,7 @@ dependencies:
     artifact_id:   apache-maven
     classifier:    bin
     packaging:     tar.gz
-    version_regex: ^3\\.[\\d]+\\.[\\d]+$
+    version_regex: "^3\\.[\\d]+\\.[\\d]+$"
 - name:            Maven 4
   id:              maven
   uses:            docker://ghcr.io/paketo-buildpacks/actions/maven-dependency:main
@@ -38,7 +38,7 @@ dependencies:
     artifact_id:   apache-maven
     classifier:    bin
     packaging:     tar.gz
-    version_regex: ^4\\.[\\d]+\\.[\\d]+-.*$
+    version_regex: "^4\\.[\\d]+\\.[\\d]+-.*$"
 - id:   mvnd
   uses: docker://ghcr.io/paketo-buildpacks/actions/github-release-dependency:main
   with:
