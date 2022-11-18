@@ -27,12 +27,13 @@ type DaemonMavenManager struct {
 	logger         bard.Logger
 }
 
-func NewDaemonMavenManager(configResolver libpak.ConfigurationResolver, depResolver libpak.DependencyResolver, depCache libpak.DependencyCache, layersPath string) DaemonMavenManager {
+func NewDaemonMavenManager(configResolver libpak.ConfigurationResolver, depResolver libpak.DependencyResolver, depCache libpak.DependencyCache, layersPath string, logger bard.Logger) DaemonMavenManager {
 	return DaemonMavenManager{
 		configResolver: configResolver,
 		depResolver:    depResolver,
 		depCache:       depCache,
 		layersPath:     layersPath,
+		logger:         logger,
 	}
 }
 
@@ -66,12 +67,14 @@ type StandardMavenManager struct {
 	logger         bard.Logger
 }
 
-func NewStandardMavenManager(appPath string, configResolver libpak.ConfigurationResolver, depResolver libpak.DependencyResolver, depCache libpak.DependencyCache, layersPath string) StandardMavenManager {
+func NewStandardMavenManager(appPath string, configResolver libpak.ConfigurationResolver, depResolver libpak.DependencyResolver, depCache libpak.DependencyCache, layersPath string, logger bard.Logger) StandardMavenManager {
 	return StandardMavenManager{
-		appPath:     appPath,
-		depResolver: depResolver,
-		depCache:    depCache,
-		layersPath:  layersPath,
+		appPath:        appPath,
+		configResolver: configResolver,
+		depResolver:    depResolver,
+		depCache:       depCache,
+		layersPath:     layersPath,
+		logger:         logger,
 	}
 }
 
@@ -89,7 +92,9 @@ func (s StandardMavenManager) ShouldInstall() bool {
 
 // Install the standard JVM-based Maven distribution
 func (s StandardMavenManager) Install() (string, libcnb.LayerContributor, *libcnb.BOMEntry, error) {
-	dep, err := s.depResolver.Resolve("maven", "")
+	version, _ := s.configResolver.Resolve("BP_MAVEN_VERSION")
+
+	dep, err := s.depResolver.Resolve("maven", version)
 	if err != nil {
 		return "", nil, nil, fmt.Errorf("unable to find dependency\n%w", err)
 	}
@@ -108,9 +113,10 @@ type WrapperMavenManager struct {
 	logger  bard.Logger
 }
 
-func NewWrapperMavenManager(appPath string, configResolver libpak.ConfigurationResolver, depResolver libpak.DependencyResolver, depCache libpak.DependencyCache) WrapperMavenManager {
+func NewWrapperMavenManager(appPath string, logger bard.Logger) WrapperMavenManager {
 	return WrapperMavenManager{
 		appPath: appPath,
+		logger:  logger,
 	}
 }
 
@@ -163,8 +169,10 @@ type NoopMavenManager struct {
 	logger bard.Logger
 }
 
-func NewNoopMavenManager() NoopMavenManager {
-	return NoopMavenManager{}
+func NewNoopMavenManager(logger bard.Logger) NoopMavenManager {
+	return NoopMavenManager{
+		logger: logger,
+	}
 }
 
 // ShouldInstall determines if Maven is on the $PATH
