@@ -103,9 +103,9 @@ api = "0.7"
     id = "maven"
     name = "Apache Maven"
     purl = "pkg:generic/apache-maven@4.0.0"
-    sha256 = "4b133c01af2559501c13e6366149c65db87178d0ac354fd1f3204463b6bac7b2"
+    sha256 = "ee1b48a64e0ee3c1afc626b4cb7be1b3c69eb8f7a67df06598cad25e4c292f92"
     stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
-    uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/4.0.0-alpha-2/apache-maven-4.0.0-alpha-2-bin.tar.gz"
+    uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/4.0.0-alpha-3/apache-maven-4.0.0-alpha-3-bin.tar.gz"
     version = "4.0.0"
 
     [[metadata.dependencies.licenses]]
