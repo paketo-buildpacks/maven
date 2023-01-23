@@ -23,6 +23,7 @@ func testMavenManager(t *testing.T, context spec.G, it spec.S) {
 		ctx          libcnb.BuildContext
 		mavenManager maven.MavenManager
 		mvnwFilepath string
+		mvnwPropsPath string
 	)
 
 	it.Before(func() {
@@ -35,6 +36,10 @@ func testMavenManager(t *testing.T, context spec.G, it spec.S) {
 		Expect(err).NotTo(HaveOccurred())
 
 		mvnwFilepath = filepath.Join(ctx.Application.Path, "mvnw")
+		mvnwPropsPath = filepath.Join(ctx.Application.Path, ".mvn/wrapper/") 
+		
+		err = os.MkdirAll(mvnwPropsPath, 0755)
+		Expect(err).NotTo(HaveOccurred())
 	})
 
 	it.After(func() {
@@ -264,6 +269,19 @@ func testMavenManager(t *testing.T, context spec.G, it spec.S) {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(bytes.Compare(contents, []byte("test\n"))).To(Equal(0))
 		})
+
+		it("converts CRLF formatting in the maven-wrapper.properties file to LF (unix) if present", func() {
+			propsFile := filepath.Join(mvnwPropsPath, "maven-wrapper.properties")
+			Expect(os.WriteFile(propsFile, []byte("test\r\n"), 0755)).To(Succeed())
+	
+			_, _, _, err := mavenManager.Install()
+                        Expect(err).NotTo(HaveOccurred())
+
+                        contents, err := os.ReadFile(propsFile)
+                        Expect(err).NotTo(HaveOccurred())
+                        Expect(bytes.Compare(contents, []byte("test\n"))).To(Equal(0))
+		})
+
 	})
 
 	context("NoopMavenManager", func() {
