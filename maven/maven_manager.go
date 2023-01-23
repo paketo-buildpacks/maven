@@ -121,8 +121,8 @@ func NewWrapperMavenManager(appPath string, logger bard.Logger) WrapperMavenMana
 }
 
 // ShouldInstall the Maven Wrapper
-func (s WrapperMavenManager) ShouldInstall() bool {
-	command := filepath.Join(s.appPath, "mvnw")
+func (w WrapperMavenManager) ShouldInstall() bool {
+	command := filepath.Join(w.appPath, "mvnw")
 	_, err := os.Stat(command)
 	return err == nil
 }
@@ -130,26 +130,32 @@ func (s WrapperMavenManager) ShouldInstall() bool {
 // Install the Maven wrapper tool
 // Slightly misleading as this doesn't install anything, it just makes sure the wrapper can be run
 // The wrapper itself handles any installation, if it's necessary
-func (s WrapperMavenManager) Install() (string, libcnb.LayerContributor, *libcnb.BOMEntry, error) {
-	command := filepath.Join(s.appPath, "mvnw")
+func (w WrapperMavenManager) Install() (string, libcnb.LayerContributor, *libcnb.BOMEntry, error) {
+	command := filepath.Join(w.appPath, "mvnw")
 
 	if err := os.Chmod(command, 0755); err != nil {
-		s.logger.Bodyf("WARNING: unable to chmod %s:\n%s", command, err)
+		w.logger.Bodyf("WARNING: unable to chmod %s:\n%s", command, err)
 	}
 
-	if err := s.cleanMvnWrapper(command); err != nil {
-		s.logger.Bodyf("WARNING: unable to clean mvnw file: %s\n%s", command, err)
+	if err := w.cleanMvnWrapper(command); err != nil {
+		w.logger.Bodyf("WARNING: unable to clean mvnw file: %s\n%s", command, err)
+	}
+
+	wrapperProperties := filepath.Join(w.appPath, ".mvn/wrapper/maven-wrapper.properties")
+	if _, err := os.Stat(wrapperProperties); err == nil {
+		if err := w.cleanMvnWrapper(wrapperProperties); err != nil {
+                	w.logger.Bodyf("WARNING: unable to clean wrapper properties file: %s\n%s", wrapperProperties, err)
+        	}
 	}
 
 	return command, nil, nil, nil
 }
 
-func (s WrapperMavenManager) cleanMvnWrapper(fileName string) error {
+func (w WrapperMavenManager) cleanMvnWrapper(fileName string) error {
 	fileContents, err := os.ReadFile(fileName)
 	if err != nil {
 		return err
 	}
-
 	// the mvnw file can contain Windows CRLF line endings, e.g. from a 'git clone' on windows
 	// we replace these so that the unix container can execute the wrapper successfully
 
