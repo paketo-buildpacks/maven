@@ -194,4 +194,225 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 			},
 		}))
 	})
+
+	it("passes with pom.xml and yarn.lock", func() {
+		Expect(os.WriteFile(filepath.Join(ctx.Application.Path, "pom.xml"), []byte{}, 0644))
+		Expect(os.WriteFile(filepath.Join(ctx.Application.Path, "yarn.lock"), []byte{}, 0644))
+		os.Setenv("BP_JAVA_INSTALL_NODE",  "true")
+
+		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{
+			Pass: true,
+			Plans: []libcnb.BuildPlan{
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "jdk"},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
+						{Name: "jdk"},
+						{Name: "maven"},
+						{Name: "yarn", Metadata: map[string]interface{}{"build": true}},
+						{Name: "node", Metadata: map[string]interface{}{"build": true}},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
+						{Name: "jdk"},
+						{Name: "maven"},
+						{Name: "yarn", Metadata: map[string]interface{}{"build": true}},
+						{Name: "node", Metadata: map[string]interface{}{"build": true}},
+					},
+				},
+			},
+		}))
+	})
+
+	it("passes with pom.xml and package.json", func() {
+		Expect(os.WriteFile(filepath.Join(ctx.Application.Path, "pom.xml"), []byte{}, 0644))
+		Expect(os.WriteFile(filepath.Join(ctx.Application.Path, "package.json"), []byte{}, 0644))
+		os.Setenv("BP_JAVA_INSTALL_NODE",  "true")
+
+		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{
+			Pass: true,
+			Plans: []libcnb.BuildPlan{
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "jdk"},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
+						{Name: "jdk"},
+						{Name: "maven"},
+						{Name: "node", Metadata: map[string]interface{}{"build": true}},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
+						{Name: "jdk"},
+						{Name: "maven"},
+						{Name: "node", Metadata: map[string]interface{}{"build": true}},
+					},
+				},
+			},
+		}))
+	})
+
+	it("passes without duplication with both yarn.lock & package.json", func() {
+		Expect(os.WriteFile(filepath.Join(ctx.Application.Path, "pom.xml"), []byte{}, 0644))
+		Expect(os.WriteFile(filepath.Join(ctx.Application.Path, "package.json"), []byte{}, 0644))
+		Expect(os.WriteFile(filepath.Join(ctx.Application.Path, "yarn.lock"), []byte{}, 0644))
+		os.Setenv("BP_JAVA_INSTALL_NODE",  "true")
+
+		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{
+			Pass: true,
+			Plans: []libcnb.BuildPlan{
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "jdk"},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
+						{Name: "jdk"},
+						{Name: "maven"},
+						{Name: "yarn", Metadata: map[string]interface{}{"build": true}},
+						{Name: "node", Metadata: map[string]interface{}{"build": true}},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
+						{Name: "jdk"},
+						{Name: "maven"},
+						{Name: "yarn", Metadata: map[string]interface{}{"build": true}},
+						{Name: "node", Metadata: map[string]interface{}{"build": true}},
+					},
+				},
+			},
+		}))
+	})
+
+	it("passes with custom path set via BP_NODE_PROJECT_PATH", func() {
+		os.Setenv("BP_NODE_PROJECT_PATH",  "frontend")
+		os.Setenv("BP_JAVA_INSTALL_NODE",  "true")
+		os.Mkdir(filepath.Join(ctx.Application.Path, "frontend"), 0755)
+		Expect(os.WriteFile(filepath.Join(ctx.Application.Path, "pom.xml"), []byte{}, 0644))
+		Expect(os.WriteFile(filepath.Join(ctx.Application.Path, "frontend/yarn.lock"), []byte{}, 0644))
+
+		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{
+			Pass: true,
+			Plans: []libcnb.BuildPlan{
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "jdk"},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
+						{Name: "jdk"},
+						{Name: "maven"},
+						{Name: "yarn", Metadata: map[string]interface{}{"build": true}},
+						{Name: "node", Metadata: map[string]interface{}{"build": true}},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
+						{Name: "jdk"},
+						{Name: "maven"},
+						{Name: "yarn", Metadata: map[string]interface{}{"build": true}},
+						{Name: "node", Metadata: map[string]interface{}{"build": true}},
+					},
+				},
+			},
+		}))
+	})
+
+	it("does not detect false positive without env-var", func() {
+		Expect(os.WriteFile(filepath.Join(ctx.Application.Path, "pom.xml"), []byte{}, 0644))
+		Expect(os.WriteFile(filepath.Join(ctx.Application.Path, "yarn.lock"), []byte{}, 0644))
+
+		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{
+			Pass: true,
+			Plans: []libcnb.BuildPlan{
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "jdk"},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
+						{Name: "jdk"},
+						{Name: "maven"},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
+						{Name: "jdk"},
+						{Name: "maven"},
+					},
+				},
+			},
+		}))
+	})
 }

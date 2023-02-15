@@ -18,13 +18,13 @@ package maven
 
 import (
 	"fmt"
-	"io"
-	"os"
-	"path/filepath"
-
 	"github.com/buildpacks/libcnb"
 	"github.com/paketo-buildpacks/libpak"
 	"github.com/paketo-buildpacks/libpak/bard"
+	"io"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 const (
@@ -32,6 +32,8 @@ const (
 	PlanEntryJVMApplicationPackage = "jvm-application-package"
 	PlanEntryJDK                   = "jdk"
 	PlanEntrySyft                  = "syft"
+	PlanEntryYarn				   = "yarn"
+	PlanEntryNode				   = "node"
 )
 
 type Detect struct{}
@@ -72,10 +74,13 @@ func (Detect) Detect(context libcnb.DetectContext) (libcnb.DetectResult, error) 
 	}
 
 	pomFile, _ := cr.Resolve("BP_MAVEN_POM_FILE")
+	var performBuild bool
 	file := filepath.Join(context.Application.Path, pomFile)
 	if _, err = os.Stat(file); err != nil && !os.IsNotExist(err) {
 		return libcnb.DetectResult{}, fmt.Errorf("unable to determine if %s exists\n%w", file, err)
 	} else if err == nil {
+		performBuild = true
+
 		// buildplan entry to support build-only
 		result.Plans = append(result.Plans, libcnb.BuildPlan{
 			Provides: []libcnb.BuildPlanProvide{
@@ -92,6 +97,63 @@ func (Detect) Detect(context libcnb.DetectContext) (libcnb.DetectResult, error) 
 			}
 		}
 	}
+	// Only require Node if we will perform the build
+	if performBuild {
+		if cr.ResolveBool("BP_JAVA_INSTALL_NODE") {
+			var fileFound bool
+			files := []string{filepath.Join(context.Application.Path, "yarn.lock"), filepath.Join(context.Application.Path,"package.json")}
+			if customNodePath, _ := cr.Resolve("BP_NODE_PROJECT_PATH"); customNodePath != "" {
+				files = []string{filepath.Join(context.Application.Path, customNodePath, "yarn.lock"), filepath.Join(context.Application.Path, customNodePath, "package.json")}
+			}
+			if err := findFile(files, func (file string) bool{
+				if strings.Contains(file,"yarn.lock") {
+					for i := 1; i < len(result.Plans); i++ {
+						result.Plans[i].Requires = []libcnb.BuildPlanRequire{
+							{Name: PlanEntrySyft},
+							{Name: PlanEntryJDK},
+							{Name: PlanEntryMaven},
+							{Name: PlanEntryYarn, Metadata: map[string]interface{}{"build": true}},
+							{Name: PlanEntryNode, Metadata: map[string]interface{}{"build": true}},
+						}
+					}
+					fileFound = true
+					return true
+				} else if strings.Contains(file,"package.json") {
+					for i := 1; i < len(result.Plans); i++ {
+						result.Plans[i].Requires = []libcnb.BuildPlanRequire{
+							{Name: PlanEntrySyft},
+							{Name: PlanEntryJDK},
+							{Name: PlanEntryMaven},
+							{Name: PlanEntryNode, Metadata: map[string]interface{}{"build": true}},
+						}
+					}
+					fileFound = true
+				}
+				return false
+			}); err != nil{
+				return libcnb.DetectResult{}, err
+			}
+			if !fileFound{
+				l.Infof("unable to find a yarn.lock or package.json file, you may need to set BP_NODE_PROJECT_PATH")
+			}
+		}
+		return result, nil
+	}
 
 	return result, nil
+}
+
+func findFile (files []string, runWhenFound func(fileFound string) bool) error {
+	for _, file := range files {
+		_, err := os.Stat(file)
+		if os.IsNotExist(err) {
+			continue
+		} else if err != nil {
+			return fmt.Errorf("unable to determine if file %s exists \n%w", file, err)
+		}
+		if runWhenFound(file) {
+			break
+		}
+	}
+	return nil
 }
