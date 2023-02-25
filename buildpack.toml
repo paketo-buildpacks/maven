@@ -84,6 +84,18 @@ api = "0.7"
     description = "colon separated list of glob patterns, matched source files are removed"
     name = "BP_EXCLUDE_FILES"
 
+  [[metadata.configurations]]
+    build = true
+    default = "false"
+    description = "whether to install Yarn/Node binaries based on the presence of a package.json or yarn.lock file"
+    name = "BP_JAVA_INSTALL_NODE"
+
+  [[metadata.configurations]]
+    build = true
+    default = ""
+    description = "configure a project subdirectory to look for `package.json` and `yarn.lock` files"
+    name = "BP_NODE_PROJECT_PATH"
+
   [[metadata.dependencies]]
     cpes = ["cpe:2.3:a:apache:maven:3.8.6:*:*:*:*:*:*:*"]
     id = "maven"
