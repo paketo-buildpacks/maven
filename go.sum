@@ -1764,8 +1764,8 @@ github.com/paketo-buildpacks/libbs v1.17.0 h1:W0zXlmWh1IGELEhkCUkQGqMGPahNeue9ST
 github.com/paketo-buildpacks/libbs v1.17.0/go.mod h1:YhrfCFXZj8eYG7NNJw/ZBk/roj7pX9Aa1ZdkDCXW7kg=
 github.com/paketo-buildpacks/libjvm v1.41.0 h1:PK99hqV4htl2yLHNzz1GBGlAd/jccYE1u6LqLs21p6o=
 github.com/paketo-buildpacks/libjvm v1.41.0/go.mod h1:HvZmNTF6c9WV1uA+8z1ObHwCUJbRn9LbTK95Eb/3yyQ=
-github.com/paketo-buildpacks/libpak v1.63.0 h1:LLBKp3QNXzpSIrz54dZqvxtZawFzZon69d7HGof2eKw=
-github.com/paketo-buildpacks/libpak v1.63.0/go.mod h1:F8SrPD3jZsSQrBVU0Tnunf9nZLDVZr8L/0QPTV4Ie64=
+github.com/paketo-buildpacks/libpak v1.64.0 h1:ltwikAN7/2nZcSSPFaM8+okvvRlWIC2kvd29o3M8NtE=
+github.com/paketo-buildpacks/libpak v1.64.0/go.mod h1:JlMr/R0YpPwQXxTTTFTi1OdhddSuok5CwQaf26B98NY=
 github.com/paketo-buildpacks/occam v0.9.0/go.mod h1:tPo7XTWN4VYHY0SCa/Iaqbd5QtQHqsy3TQq+jmKa99U=
 github.com/paketo-buildpacks/packit/v2 v2.1.0/go.mod h1:Ud1X7f9O6e4eGPZlY3pj0jnSa9oDK2L/ghvjmarTLSA=
 github.com/paketo-buildpacks/packit/v2 v2.3.0/go.mod h1:9TmiTKglw/vrSG5540+PWPCGNZdM1hULgRAHqRHym0s=
@@ -2057,7 +2057,7 @@ github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.4/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
-github.com/stretchr/testify v1.8.1 h1:w7B6lhMri9wdJUVmEZPGGhZzrYTPvgJArz7wNPgYKsk=
+github.com/stretchr/testify v1.8.2 h1:+h33VjcLVPDHtOdpUCuF+7gSuG3yGIftsP1YvFihtJ8=
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/subosito/gotenv v1.3.0/go.mod h1:YzJjq/33h7nrwdY+iHMhEOEEbW0ovIz0tB6t6PwAXzs=
 github.com/sylvia7788/contextcheck v1.0.4/go.mod h1:vuPKJMQ7MQ91ZTqfdyreNKwZjyUg6KO+IebVyQDedZQ=
@@ -3128,7 +3128,7 @@ google.golang.org/protobuf v1.26.0-rc.1/go.mod h1:jlhhOSvTdKEhbULTjvd4ARK9grFBp0
 google.golang.org/protobuf v1.26.0/go.mod h1:9q0QmTI4eRPtz6boOQmLYwt+qCgq0jsYwAQnmE0givc=
 google.golang.org/protobuf v1.27.1/go.mod h1:9q0QmTI4eRPtz6boOQmLYwt+qCgq0jsYwAQnmE0givc=
 google.golang.org/protobuf v1.28.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
-google.golang.org/protobuf v1.28.1 h1:d0NfwRgPtno5B1Wa6L2DAG+KivqkdutMf1UhdNx175w=
+google.golang.org/protobuf v1.30.0 h1:kPPoIgf3TsEvrm0PFe15JQ+570QVxYzEvvHqChK+cng=
 gopkg.in/airbrake/gobrake.v2 v2.0.9/go.mod h1:/h5ZAUhDkGaJfjzjKLSjv6zCL6O0LLBxU4K+aSYdM/U=
 gopkg.in/alecthomas/kingpin.v2 v2.2.6/go.mod h1:FMv+mEhP44yOT+4EoQTLFTRgOQ1FBLkstjWtayDeSgw=
 gopkg.in/alexcesaro/statsd.v2 v2.0.0/go.mod h1:i0ubccKGzBVNBpdGV5MocxyA/XlLUJzA7SLonnE4drU=
