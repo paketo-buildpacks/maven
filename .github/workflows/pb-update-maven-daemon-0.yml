@@ -47,7 +47,7 @@ jobs:
                 glob: mvnd-.+-linux-amd64.zip
                 owner: apache
                 repository: maven-mvnd
-                tag_filter: ^0\.[\d]+\.[\d]$
+                tag_filter: (^0\.[\d]+\.[\d])$
                 token: ${{ secrets.PAKETO_BOT_GITHUB_TOKEN }}
             - name: Update Buildpack Dependency
               id: buildpack
