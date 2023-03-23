@@ -50,7 +50,7 @@ dependencies:
     owner: apache
     repository: maven-mvnd
     glob: mvnd-.+-linux-amd64.zip
-    tag_filter: "^0\\.[\\d]+\\.[\\d]$"
+    tag_filter: "(^0\\.[\\d]+\\.[\\d])$"
     token: ${{ secrets.PAKETO_BOT_GITHUB_TOKEN }}
 - name: Maven Daemon 1
   id:   mvnd
@@ -60,5 +60,5 @@ dependencies:
     owner: apache
     repository: maven-mvnd
     glob: mvnd-.+-linux-amd64.zip
-    tag_filter: "^1\\.[\\d]+\\.[\\d](?:-.*)?$"
+    tag_filter: "^(1\\.[\\d]+\\.[\\d](?:-.*)?)$"
     token: ${{ secrets.PAKETO_BOT_GITHUB_TOKEN }}
