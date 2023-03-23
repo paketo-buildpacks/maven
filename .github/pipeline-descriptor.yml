@@ -42,10 +42,23 @@ dependencies:
     classifier:    bin
     packaging:     tar.gz
     version_regex: "^4\\.[\\d]+\\.[\\d]+-.*$"
-- id:   mvnd
+- name: Maven Daemon 0
+  id:   mvnd
   uses: docker://ghcr.io/paketo-buildpacks/actions/github-release-dependency:main
+  version_pattern: "^0\\.[\\d]+\\.[\\d]$"
   with:
     owner: apache
     repository: maven-mvnd
     glob: mvnd-.+-linux-amd64.zip
+    tag_filter: "^0\\.[\\d]+\\.[\\d]$"
+    token: ${{ secrets.PAKETO_BOT_GITHUB_TOKEN }}
+- name: Maven Daemon 1
+  id:   mvnd
+  uses: docker://ghcr.io/paketo-buildpacks/actions/github-release-dependency:main
+  version_pattern: "^1\\.[\\d]+\\.[\\d](?:-.*)?$"
+  with:
+    owner: apache
+    repository: maven-mvnd
+    glob: mvnd-.+-linux-amd64.zip
+    tag_filter: "^1\\.[\\d]+\\.[\\d](?:-.*)?$"
     token: ${{ secrets.PAKETO_BOT_GITHUB_TOKEN }}
