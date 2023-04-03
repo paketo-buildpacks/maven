@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/buildpacks/libcnb v1.27.0
 	github.com/mattn/go-isatty v0.0.18
-	github.com/onsi/gomega v1.27.5
+	github.com/onsi/gomega v1.27.6
 	github.com/paketo-buildpacks/libbs v1.17.0
 	github.com/paketo-buildpacks/libpak v1.64.0
 	github.com/sclevine/spec v1.4.0
