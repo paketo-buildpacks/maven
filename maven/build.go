@@ -192,6 +192,14 @@ func (b Build) configureMaven(context libcnb.BuildContext) (libbs.ArtifactResolv
 		}
 	}
 
+	additionalArgs, err := libbs.ResolveArguments("BP_MAVEN_ADDITIONAL_BUILD_ARGUMENTS", b.configResolver)
+	if err != nil {
+		return libbs.ArtifactResolver{}, map[string]interface{}{}, []string{},
+			fmt.Errorf("unable to resolve additionnal build arguments\n%w", err)
+	} else {
+		args = append(args, additionalArgs...)
+	}
+
 	return libbs.ArtifactResolver{
 		ArtifactConfigurationKey: "BP_MAVEN_BUILT_ARTIFACT",
 		ConfigurationResolver:    b.configResolver,
