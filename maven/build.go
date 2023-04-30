@@ -200,6 +200,15 @@ func (b Build) configureMaven(context libcnb.BuildContext) (libbs.ArtifactResolv
 		args = append(args, additionalArgs...)
 	}
 
+	profiles, err := libbs.ResolveArguments("BP_MAVEN_ACTIVE_PROFILES", b.configResolver)
+	if err != nil {
+		return libbs.ArtifactResolver{}, map[string]interface{}{}, []string{},
+			fmt.Errorf("unable to resolve profiles build arguments\n%w", err)
+	} else if len(profiles) > 0 {
+		profiles = append([]string{"-P"}, profiles...)
+		args = append(args, profiles...)
+	}
+
 	return libbs.ArtifactResolver{
 		ArtifactConfigurationKey: "BP_MAVEN_BUILT_ARTIFACT",
 		ConfigurationResolver:    b.configResolver,
