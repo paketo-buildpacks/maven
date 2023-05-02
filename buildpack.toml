@@ -39,6 +39,18 @@ api = "0.7"
 
   [[metadata.configurations]]
     build = true
+    default = ""
+    description = "the additionnal arguments (appended to BP_MAVEN_BUILD_ARGUMENTS) to pass to Maven"
+    name = "BP_MAVEN_ADDITIONAL_BUILD_ARGUMENTS"
+
+  [[metadata.configurations]]
+    build = true
+    default = ""
+    description = "the active profiles (comma separated: such as: p1,!p2,?p3) to pass to Maven"
+    name = "BP_MAVEN_ACTIVE_PROFILES"
+
+  [[metadata.configurations]]
+    build = true
     default = "target/*.[ejw]ar"
     description = "the built application artifact explicitly.  Supersedes $BP_MAVEN_BUILT_MODULE"
     name = "BP_MAVEN_BUILT_ARTIFACT"

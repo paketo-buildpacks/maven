@@ -128,6 +128,64 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 		})
 	})
 
+	context("BP_MAVEN_ADDITIONAL_BUILD_ARGUMENTS adds additional build arguments", func() {
+		it.Before(func() {
+			Expect(os.Setenv("BP_MAVEN_BUILD_ARGUMENTS", "--batch-mode user-provided-argument")).To(Succeed())
+			Expect(os.Setenv("BP_MAVEN_ADDITIONAL_BUILD_ARGUMENTS", "-Dgpg.skip -Dmaven.javadoc.skip=true")).To(Succeed())
+		})
+
+		it.After(func() {
+			Expect(os.Unsetenv(("BP_MAVEN_BUILD_ARGUMENTS"))).To(Succeed())
+			Expect(os.Unsetenv(("BP_MAVEN_ADDITIONAL_BUILD_ARGUMENTS"))).To(Succeed())
+		})
+		it("-Dgpg.skip and Dmaven.javadoc.skip=true got appended after the other maven arguments", func() {
+			Expect(os.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
+			ctx.StackID = "test-stack-id"
+			mavenBuild.TTY = false
+
+			result, err := mavenBuild.Build(ctx)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{
+				"--batch-mode",
+				"user-provided-argument",
+				"-Dgpg.skip",
+				"-Dmaven.javadoc.skip=true",
+			}))
+		})
+	})
+
+	context("BP_MAVEN_ACTIVE_PROFILES adds active profiles", func() {
+		it.Before(func() {
+			Expect(os.Setenv("BP_MAVEN_BUILD_ARGUMENTS", "--batch-mode user-provided-argument")).To(Succeed())
+			Expect(os.Setenv("BP_MAVEN_ADDITIONAL_BUILD_ARGUMENTS", "-Dgpg.skip -Dmaven.javadoc.skip=true")).To(Succeed())
+			Expect(os.Setenv("BP_MAVEN_ACTIVE_PROFILES", "native,?prod,!aot,-dev")).To(Succeed())
+		})
+
+		it.After(func() {
+			Expect(os.Unsetenv(("BP_MAVEN_BUILD_ARGUMENTS"))).To(Succeed())
+			Expect(os.Unsetenv(("BP_MAVEN_ADDITIONAL_BUILD_ARGUMENTS"))).To(Succeed())
+			Expect(os.Unsetenv(("BP_MAVEN_ACTIVE_PROFILES"))).To(Succeed())
+		})
+		it("the profiles native,?prod,!aot,-dev got appended after all the other maven arguments", func() {
+			Expect(os.WriteFile(mvnwFilepath, []byte{}, 0644)).To(Succeed())
+			ctx.StackID = "test-stack-id"
+			mavenBuild.TTY = false
+
+			result, err := mavenBuild.Build(ctx)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(result.Layers[1].(libbs.Application).Arguments).To(Equal([]string{
+				"--batch-mode",
+				"user-provided-argument",
+				"-Dgpg.skip",
+				"-Dmaven.javadoc.skip=true",
+				"-P",
+				"native,?prod,!aot,-dev",
+			}))
+		})
+	})
+
 	context("BP_MAVEN_SETTINGS_PATH configuration is set", func() {
 		it.Before(func() {
 			ctx.Buildpack.Metadata = map[string]interface{}{
