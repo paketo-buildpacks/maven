@@ -178,8 +178,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/toml v0.4.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/BurntSushi/toml v1.0.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/BurntSushi/toml v1.1.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
-github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak=
-github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
+github.com/BurntSushi/toml v1.3.0 h1:Ws8e5YmnrGEHzZEzg0YvK/7COGYtTC5PbaH9oSSbgfA=
+github.com/BurntSushi/toml v1.3.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/CycloneDX/cyclonedx-go v0.4.0/go.mod h1:rmRcf//gT7PIzovatusbWi377xqCg1FS4jyST0GH20E=
 github.com/CycloneDX/cyclonedx-go v0.5.0/go.mod h1:nQXAzrejxO39b14JFz2SvsUElegYfwBDowIzqjdUMk4=
@@ -1762,8 +1762,8 @@ github.com/otiai10/mint v1.3.1/go.mod h1:/yxELlJQ0ufhjUwhshSj+wFjZ78CnZ48/1wtmBH
 github.com/pact-foundation/pact-go v1.0.4/go.mod h1:uExwJY4kCzNPcHRj+hCR/HBbOOIwwtUjcrb0b5/5kLM=
 github.com/paketo-buildpacks/libbs v1.17.0 h1:W0zXlmWh1IGELEhkCUkQGqMGPahNeue9STqyieUBQMY=
 github.com/paketo-buildpacks/libbs v1.17.0/go.mod h1:YhrfCFXZj8eYG7NNJw/ZBk/roj7pX9Aa1ZdkDCXW7kg=
-github.com/paketo-buildpacks/libjvm v1.42.0 h1:xFKO9fBm7neQDN5Nvy0E2WgkG22pU/MZc1TfxDamDx0=
-github.com/paketo-buildpacks/libjvm v1.42.0/go.mod h1:+LWkDIcHLxuWx353tzPcnT3p0EXoJap1pa7dyZ9oDHo=
+github.com/paketo-buildpacks/libjvm v1.43.0 h1:RsIxureNAhLnhcGmky6t+0+vDZpBTnuRZ8s9Rf8Oo14=
+github.com/paketo-buildpacks/libjvm v1.43.0/go.mod h1:irPzwoqoKIJM8yaIHCC7aR4EbUjXzh1lpndiVIJ52n4=
 github.com/paketo-buildpacks/libpak v1.65.0 h1:31Cn9g4JlRsUV4kmEzJASQS1uUmmyP7lYzUojvgLJ3Q=
 github.com/paketo-buildpacks/libpak v1.65.0/go.mod h1:eqkZKq0RMnQKjVB2NCiQZagI6SaGBxc9LZ4wevR/NpY=
 github.com/paketo-buildpacks/occam v0.9.0/go.mod h1:tPo7XTWN4VYHY0SCa/Iaqbd5QtQHqsy3TQq+jmKa99U=
@@ -2057,7 +2057,7 @@ github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.4/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
-github.com/stretchr/testify v1.8.2 h1:+h33VjcLVPDHtOdpUCuF+7gSuG3yGIftsP1YvFihtJ8=
+github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcUk=
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/subosito/gotenv v1.3.0/go.mod h1:YzJjq/33h7nrwdY+iHMhEOEEbW0ovIz0tB6t6PwAXzs=
 github.com/sylvia7788/contextcheck v1.0.4/go.mod h1:vuPKJMQ7MQ91ZTqfdyreNKwZjyUg6KO+IebVyQDedZQ=
