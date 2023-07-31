@@ -1713,8 +1713,8 @@ github.com/onsi/gomega v1.16.0/go.mod h1:HnhC7FXeEQY45zxNK3PPoIUhzk/80Xly9PcubAl
 github.com/onsi/gomega v1.17.0/go.mod h1:HnhC7FXeEQY45zxNK3PPoIUhzk/80Xly9PcubAlGdZY=
 github.com/onsi/gomega v1.18.1/go.mod h1:0q+aL8jAiMXy9hbwj2mr5GziHiwhAIQpFmmtT5hitRs=
 github.com/onsi/gomega v1.19.0/go.mod h1:LY+I3pBVzYsTBU1AnDwOSxaYi9WoWiqgwooUqq9yPro=
-github.com/onsi/gomega v1.27.9 h1:qIyVWbOsvQEye2QCqLsNSeH/5L1RS9vS382erEWfT3o=
-github.com/onsi/gomega v1.27.9/go.mod h1:RsS8tutOdbdgzbPtzzATp12yT7kM5I5aElG3evPbQ0M=
+github.com/onsi/gomega v1.27.10 h1:naR28SdDFlqrG6kScpT8VWpu1xWY5nJRCF3XaYyBjhI=
+github.com/onsi/gomega v1.27.10/go.mod h1:RsS8tutOdbdgzbPtzzATp12yT7kM5I5aElG3evPbQ0M=
 github.com/op/go-logging v0.0.0-20160315200505-970db520ece7/go.mod h1:HzydrMdWErDVzsI23lYNej1Htcns9BCg93Dk0bBINWk=
 github.com/open-policy-agent/opa v0.35.0/go.mod h1:xEmekKlk6/c+so5HF9wtPnGPXDfBuBsrMGhSHOHEF+U=
 github.com/opencontainers/go-digest v0.0.0-20170106003457-a6d0ee40d420/go.mod h1:cMLVZDEM3+U2I4VmLI6N8jQYUd2OVphdqWwCJHrFt2s=
@@ -1764,8 +1764,8 @@ github.com/paketo-buildpacks/libbs v1.18.1 h1:rM+dJ8MA4INv01N0K1a0AXeya2FRuf8IlO
 github.com/paketo-buildpacks/libbs v1.18.1/go.mod h1:EFVjgeFoQLMQFclsQM9p0inJWCQMVsNpWnz/RvGAAlk=
 github.com/paketo-buildpacks/libjvm v1.43.2 h1:ZIXVMe6UH+CyQV1n1l1tyPVbSZvNQGDqfjdEtEyyCv0=
 github.com/paketo-buildpacks/libjvm v1.43.2/go.mod h1:bzYXHm3XD4ZIbYhFP/21QjFjBlRtLN7KllxqOK/71Yg=
-github.com/paketo-buildpacks/libpak v1.66.1 h1:lHi2ueYzzyQfk34n3K3d7yb3WSaubth0bhHI+BzNX0w=
-github.com/paketo-buildpacks/libpak v1.66.1/go.mod h1:Ca654P3i4x9hqvDm5glzvNxmqKoQV5UB08JrZtdK5V8=
+github.com/paketo-buildpacks/libpak v1.66.2 h1:ovvxoSMa+P2O6FwPnqGVwTeFqJZXwmq2b4+Wpeuk1xY=
+github.com/paketo-buildpacks/libpak v1.66.2/go.mod h1:m9ip2UPVCcrxK8TN8gGQ2WtJnjzBT84JFNl96mzYTwk=
 github.com/paketo-buildpacks/occam v0.9.0/go.mod h1:tPo7XTWN4VYHY0SCa/Iaqbd5QtQHqsy3TQq+jmKa99U=
 github.com/paketo-buildpacks/packit/v2 v2.1.0/go.mod h1:Ud1X7f9O6e4eGPZlY3pj0jnSa9oDK2L/ghvjmarTLSA=
 github.com/paketo-buildpacks/packit/v2 v2.3.0/go.mod h1:9TmiTKglw/vrSG5540+PWPCGNZdM1hULgRAHqRHym0s=
