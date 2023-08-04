@@ -113,10 +113,10 @@ api = "0.7"
     id = "maven"
     name = "Apache Maven"
     purl = "pkg:generic/apache-maven@3.8.6"
-    sha256 = "e1e13ac0c42f3b64d900c57ffc652ecef682b8255d7d354efbbb4f62519da4f1"
+    sha256 = "ff66b70c830a38d331d44f6c25a37b582471def9a161c93902bac7bea3098319"
     stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
-    uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.9.3/apache-maven-3.9.3-bin.tar.gz"
-    version = "3.9.3"
+    uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.9.4/apache-maven-3.9.4-bin.tar.gz"
+    version = "3.9.4"
 
     [[metadata.dependencies.licenses]]
       type = "Apache-2.0"
