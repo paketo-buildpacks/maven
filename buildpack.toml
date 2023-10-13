@@ -141,10 +141,10 @@ api = "0.7"
       uri = "https://www.apache.org/licenses/"
 
   [[metadata.dependencies]]
-    cpes = ["cpe:2.3:a:apache:mvnd:0.8.2:*:*:*:*:*:*:*"]
+    cpes = ["cpe:2.3:a:apache:mvnd:0.9.0:*:*:*:*:*:*:*"]
     id = "mvnd"
     name = "Apache Maven Daemon"
-    purl = "pkg:generic/apache-mvnd@0.8.2"
+    purl = "pkg:generic/apache-mvnd@0.9.0"
     sha256 = "5d33a9a5964905381df1e132a1a4c0cc6e4b7c72f75daa2d799181b68091fe9f"
     source = "https://github.com/apache/maven-mvnd/archive/refs/tags/0.9.0.tar.gz"
     source-sha256 = "20435e39db7586ab740b3c90b8d209fc6483c67faef77452cea1f0b2b0b85d38"
