@@ -4,7 +4,7 @@ The Paketo Buildpack for Maven is a Cloud Native Buildpack that builds Maven-bas
 
 ## Behavior
 
-This buildpack will participate all the following conditions are met
+This buildpack will participate if all the following conditions are met:
 
 * Another buildpack requires `maven`, `jvm-application-package` or both
 * `<APPLICATION_ROOT>/pom.xml` exists or `BP_MAVEN_POM_FILE` is set to an existing POM file.
