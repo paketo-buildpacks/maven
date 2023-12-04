@@ -113,12 +113,12 @@ api = "0.7"
     id = "maven"
     name = "Apache Maven"
     purl = "pkg:generic/apache-maven@3.8.6"
-    sha256 = "5fd272b105041fe81e2e42f6399765e015fc4938ef3753ba4af9f0119d84ef7c"
-    source = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.9.5/apache-maven-3.9.5-src.tar.gz"
-    source-sha256 = "93e966b50390c944e744c9ecd8904ce462f504b2d50c3e792bd58ad203a05e70"
+    sha256 = "6eedd2cae3626d6ad3a5c9ee324bd265853d64297f07f033430755bd0e0c3a4b"
+    source = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.9.6/apache-maven-3.9.6-src.tar.gz"
+    source-sha256 = "817d8fbfc1f4d91712bfb1ff839a603f9873c4125e89151ae52b56f72ee8043e"
     stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
-    uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.9.5/apache-maven-3.9.5-bin.tar.gz"
-    version = "3.9.5"
+    uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/3.9.6/apache-maven-3.9.6-bin.tar.gz"
+    version = "3.9.6"
 
     [[metadata.dependencies.licenses]]
       type = "Apache-2.0"
