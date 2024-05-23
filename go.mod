@@ -1,6 +1,6 @@
 module github.com/paketo-buildpacks/maven/v6
 
-go 1.20
+go 1.22
 
 require (
 	github.com/buildpacks/libcnb v1.30.3
