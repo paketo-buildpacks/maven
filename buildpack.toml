@@ -161,11 +161,11 @@ api = "0.7"
     id = "mvnd"
     name = "Apache Maven Daemon"
     purl = "pkg:generic/apache-mvnd@1.0.0"
-    sha256 = "0ff1c8bab0c05110d6422402715af52241c9eee34edb3118dfba90e505c1d8fb"
-    source = "https://github.com/apache/maven-mvnd/archive/refs/tags/1.0.0-m4.tar.gz"
-    source-sha256 = "774046ac3ba033b9b87df1d71e4328351e903f01618a9b6dbb96b550f3646b20"
+    sha256 = "1a3199a8ddd29341b1faf293c385e91797f3d5ee4c5988421fd5c83813ff2721"
+    source = "https://github.com/apache/maven-mvnd/archive/refs/tags/1.0.0.tar.gz"
+    source-sha256 = "1dd290587fb7da0c630251032d948c3c478f9cee3cf21921ed3911b5dd56c3d3"
     stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
-    uri = "https://github.com/apache/maven-mvnd/releases/download/1.0.0-m4/maven-mvnd-1.0.0-m4-linux-amd64.zip"
+    uri = "https://github.com/apache/maven-mvnd/releases/download/1.0.0/maven-mvnd-1.0.0-linux-amd64.zip"
     version = "1.0.0"
 
     [[metadata.dependencies.licenses]]
