@@ -45,8 +45,8 @@ github.com/paketo-buildpacks/libjvm v1.45.0 h1:j6uPzw6NqLKQhtD/0mNSHWaDdNqoNvNkp
 github.com/paketo-buildpacks/libjvm v1.45.0/go.mod h1:WqnhqdGlfnMOiSQhDKeloWAUvdlKWBrrG4cmhT8yJjE=
 github.com/paketo-buildpacks/libpak v1.70.0 h1:J2Vo4lkqfrkEhOsbJbTpAHjRCszEprHjdnrLlLkL3c8=
 github.com/paketo-buildpacks/libpak v1.70.0/go.mod h1:VJpKQDq1ajyi3JIjfqIyg1Dgf/ayd4jzkO38bbqgQLc=
-github.com/paketo-buildpacks/source-removal v0.2.5 h1:icmXxTAvy3XyGyxKGnYcA9C0F+Je7QXMDvDx8OOEADk=
-github.com/paketo-buildpacks/source-removal v0.2.5/go.mod h1:SxxVCc/sdnqUt/1gr35w3jfkIKh+AQb/KtXeBs8aznc=
+github.com/paketo-buildpacks/source-removal v0.2.6 h1:2k5pIjTSiq71ciA/2L6AGNfWSThpJYBlYPWVqx1yq2E=
+github.com/paketo-buildpacks/source-removal v0.2.6/go.mod h1:DNORYwkZQOQcrkTMensuN7PjAeUy0glvZdlfwJj83MU=
 github.com/pavlo-v-chernykh/keystore-go/v4 v4.5.0 h1:2nosf3P75OZv2/ZO/9Px5ZgZ5gbKrzA3joN1QMfOGMQ=
 github.com/pavlo-v-chernykh/keystore-go/v4 v4.5.0/go.mod h1:lAVhWwbNaveeJmxrxuSTxMgKpF6DjnuVpn6T8WiBwYQ=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
