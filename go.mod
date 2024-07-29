@@ -1,11 +1,11 @@
 module github.com/paketo-buildpacks/maven/v6
 
-go 1.22
+go 1.22.5
 
 require (
 	github.com/buildpacks/libcnb v1.30.3
 	github.com/mattn/go-isatty v0.0.20
-	github.com/onsi/gomega v1.33.1
+	github.com/onsi/gomega v1.34.0
 	github.com/paketo-buildpacks/libbs v1.18.1
 	github.com/paketo-buildpacks/libpak v1.70.0
 	github.com/sclevine/spec v1.4.0
@@ -24,7 +24,7 @@ require (
 	github.com/mattn/go-shellwords v1.0.12 // indirect
 	github.com/mitchellh/hashstructure/v2 v2.0.2 // indirect
 	github.com/paketo-buildpacks/libjvm v1.45.0 // indirect
-	github.com/paketo-buildpacks/source-removal v0.2.7 // indirect
+	github.com/paketo-buildpacks/source-removal v0.2.8 // indirect
 	github.com/pavlo-v-chernykh/keystore-go/v4 v4.5.0 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	golang.org/x/crypto v0.25.0 // indirect
