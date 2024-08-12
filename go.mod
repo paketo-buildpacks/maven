@@ -7,7 +7,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20
 	github.com/onsi/gomega v1.34.1
 	github.com/paketo-buildpacks/libbs v1.18.1
-	github.com/paketo-buildpacks/libpak v1.70.0
+	github.com/paketo-buildpacks/libpak v1.71.0
 	github.com/sclevine/spec v1.4.0
 )
 
@@ -24,14 +24,14 @@ require (
 	github.com/mattn/go-shellwords v1.0.12 // indirect
 	github.com/mitchellh/hashstructure/v2 v2.0.2 // indirect
 	github.com/paketo-buildpacks/libjvm v1.45.0 // indirect
-	github.com/paketo-buildpacks/source-removal v0.2.9 // indirect
+	github.com/paketo-buildpacks/source-removal v0.2.10 // indirect
 	github.com/pavlo-v-chernykh/keystore-go/v4 v4.5.0 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
-	golang.org/x/crypto v0.25.0 // indirect
-	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56 // indirect
-	golang.org/x/net v0.27.0 // indirect
-	golang.org/x/sys v0.23.0 // indirect
-	golang.org/x/text v0.16.0 // indirect
+	golang.org/x/crypto v0.26.0 // indirect
+	golang.org/x/exp v0.0.0-20240808152545-0cdaa3abc0fa // indirect
+	golang.org/x/net v0.28.0 // indirect
+	golang.org/x/sys v0.24.0 // indirect
+	golang.org/x/text v0.17.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	software.sslmate.com/src/go-pkcs12 v0.4.0 // indirect
 )
