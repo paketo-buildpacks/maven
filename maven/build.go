@@ -119,7 +119,7 @@ func (b Build) Build(context libcnb.BuildContext) (libcnb.BuildResult, error) {
 	if _, found, err := pr.Resolve(PlanEntryJVMApplicationPackage); err != nil {
 		return libcnb.BuildResult{}, fmt.Errorf("unable to resolve JVM Application Package plan entry\n%w", err)
 	} else if found {
-		bomScanner := sbom.NewSyftCLISBOMScanner(context.Layers, effect.NewExecutor(), b.Logger)
+		bomScanner := sbom.NewSyftCLISBOMScanner(context.Layers, effect.CommandExecutor{}, b.Logger)
 
 		// build a layer contributor to run Maven
 		a, err := b.ApplicationFactory.NewApplication(
