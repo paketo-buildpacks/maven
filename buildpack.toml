@@ -109,7 +109,7 @@ api = "0.7"
     name = "BP_NODE_PROJECT_PATH"
 
   [[metadata.dependencies]]
-    cpes = ["cpe:2.3:a:apache:maven:3.8.6:*:*:*:*:*:*:*"]
+    cpes = ["cpe:2.3:a:apache:maven:3.9.9:*:*:*:*:*:*:*"]
     id = "maven"
     name = "Apache Maven"
     purl = "pkg:generic/apache-maven@3.9.9"
@@ -157,7 +157,7 @@ api = "0.7"
       uri = "https://www.apache.org/licenses/"
 
   [[metadata.dependencies]]
-    cpes = ["cpe:2.3:a:apache:mvnd:1.0.0:*:*:*:*:*:*:*"]
+    cpes = ["cpe:2.3:a:apache:mvnd:1.0.2:*:*:*:*:*:*:*"]
     id = "mvnd"
     name = "Apache Maven Daemon"
     purl = "pkg:generic/apache-mvnd@1.0.2"
