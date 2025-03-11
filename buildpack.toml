@@ -129,11 +129,11 @@ api = "0.7"
     id = "maven"
     name = "Apache Maven"
     purl = "pkg:generic/apache-maven@4.0.0"
-    sha256 = "9c88de0dd0b63e52dd2132d9808e35c00ea20c8458ba191c63109315d16771bb"
-    source = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/4.0.0-rc-2/apache-maven-4.0.0-rc-2-src.tar.gz"
-    source-sha256 = "c526e965bb9e6d0a5762fed2fe45d136ea9d2ecaefa394e4b1510f4cd31b40ad"
+    sha256 = "ef86d972e52a04866f5f78b457d21d7ecd96efa99c696998f2bd4b86ee020bcd"
+    source = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/4.0.0-rc-3/apache-maven-4.0.0-rc-3-src.tar.gz"
+    source-sha256 = "49ab9f9f4b29c2a5742446268850fa7065775a11b4aea9ed8c9262a42cc0d810"
     stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
-    uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/4.0.0-rc-2/apache-maven-4.0.0-rc-2-bin.tar.gz"
+    uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/4.0.0-rc-3/apache-maven-4.0.0-rc-3-bin.tar.gz"
     version = "4.0.0"
 
     [[metadata.dependencies.licenses]]
