@@ -1,4 +1,7 @@
-# `gcr.io/paketo-buildpacks/maven`
+# Paketo Buildpack for Maven
+
+## Buildpack ID: `paketo-buildpacks/maven`
+## Registry URLs: `docker.io/paketobuildpacks/maven`
 
 The Paketo Buildpack for Maven is a Cloud Native Buildpack that builds Maven-based applications from source.
 
