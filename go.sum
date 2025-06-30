@@ -1,7 +1,7 @@
 github.com/BurntSushi/toml v1.5.0 h1:W5quZX/G/csjUnuI8SUYlsHs9M38FC7znL0lIO+DvMg=
 github.com/BurntSushi/toml v1.5.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
-github.com/Masterminds/semver/v3 v3.3.1 h1:QtNSWtVZ3nBfk8mAOu/B6v7FMJ+NHTIgUPi7rj+4nv4=
-github.com/Masterminds/semver/v3 v3.3.1/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
+github.com/Masterminds/semver/v3 v3.4.0 h1:Zog+i5UMtVoCU8oKka5P7i9q9HgrJeGzI9SA1Xbatp0=
+github.com/Masterminds/semver/v3 v3.4.0/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
 github.com/buildpacks/libcnb v1.30.4 h1:Jp6cJxYsZQgqix+lpRdSpjHt5bv5yCJqgkw9zWmS6xU=
 github.com/buildpacks/libcnb v1.30.4/go.mod h1:vjEDAlK3/Rf67AcmBzphXoqIlbdFgBNUK5d8wjreJbY=
 github.com/creack/pty v1.1.24 h1:bJrF4RRfyJnbTJqzRLHzcGaZK1NeM5kTC9jGgovnR1s=
@@ -46,8 +46,8 @@ github.com/paketo-buildpacks/libjvm v1.46.0 h1:+mEOsK30a1if0T3ZvSs6di/w5cp/j14uD
 github.com/paketo-buildpacks/libjvm v1.46.0/go.mod h1:jNQuS8SQfbbHN9kenMpBhpxaE0uCa9ZkKLrN89IU0VY=
 github.com/paketo-buildpacks/libpak v1.73.0 h1:OgdkOn4VLIzRo0WcSx1iRmqeLrcMAZbIk7pOOJSyl5Q=
 github.com/paketo-buildpacks/libpak v1.73.0/go.mod h1:EY01BAEtNPT1kI+/OTGTAkitNzKiFzCTGAmxapBUPJ4=
-github.com/paketo-buildpacks/source-removal v0.2.49 h1:fIO+Qk6XWjLQotHc/vzja/MR4hmhXlQsqQ+mPNpnqK4=
-github.com/paketo-buildpacks/source-removal v0.2.49/go.mod h1:BveL6aIwTJEindz8QqxT0NYPBtL8s0L32cgvsHV0Gfc=
+github.com/paketo-buildpacks/source-removal v0.2.50 h1:3HLFSb95GytTff/CUlWRQpDi/OzDRaIv3y934UvFNJ8=
+github.com/paketo-buildpacks/source-removal v0.2.50/go.mod h1:TitruszaYtVtwD8jF3wHq2reldQOloquJcZhlguFDdQ=
 github.com/pavlo-v-chernykh/keystore-go/v4 v4.5.0 h1:2nosf3P75OZv2/ZO/9Px5ZgZ5gbKrzA3joN1QMfOGMQ=
 github.com/pavlo-v-chernykh/keystore-go/v4 v4.5.0/go.mod h1:lAVhWwbNaveeJmxrxuSTxMgKpF6DjnuVpn6T8WiBwYQ=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRIccs7FGNTlIRMkT8wgtp5eCXdBlqhYGL6U=
