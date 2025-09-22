@@ -160,13 +160,13 @@ api = "0.7"
     cpes = ["cpe:2.3:a:apache:mvnd:1.0.2:*:*:*:*:*:*:*"]
     id = "mvnd"
     name = "Apache Maven Daemon"
-    purl = "pkg:generic/apache-mvnd@1.0.2"
-    sha256 = "6534ec4565f508e5af38de8bdb0b48e534965fa797591b3f57d88bef64222c4f"
-    source = "https://github.com/apache/maven-mvnd/archive/refs/tags/1.0.2.tar.gz"
-    source-sha256 = "a0c3639b065f7ca3c24cbbe02d9d953217b8d0cd7407710bfe647a642bdcdab6"
+    purl = "pkg:generic/apache-mvnd@1.0.3"
+    sha256 = "3090bd3c61cb6af4fd7fe84bcec3d914104f26d02ff32fe881fc73c5bd1746c9"
+    source = "https://github.com/apache/maven-mvnd/archive/refs/tags/1.0.3.tar.gz"
+    source-sha256 = "8244f2a714d9e27b571a9d556b73a4b56e0370a91ab4d0a12da6dc20b631682f"
     stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
-    uri = "https://github.com/apache/maven-mvnd/releases/download/1.0.2/maven-mvnd-1.0.2-linux-amd64.zip"
-    version = "1.0.2"
+    uri = "https://github.com/apache/maven-mvnd/releases/download/1.0.3/maven-mvnd-1.0.3-linux-amd64.zip"
+    version = "1.0.3"
 
     [[metadata.dependencies.licenses]]
       type = "Apache-2.0"
