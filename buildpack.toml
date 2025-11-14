@@ -129,11 +129,11 @@ api = "0.7"
     id = "maven"
     name = "Apache Maven"
     purl = "pkg:generic/apache-maven@4.0.0"
-    sha256 = "454ab0fb07e6e9e365f7f56e6bcef18df1d619aa57e2bd6de527f0e0c85bdbbb"
-    source = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/4.0.0-rc-4/apache-maven-4.0.0-rc-4-src.tar.gz"
-    source-sha256 = "ef46e6907f845a378cf69baae0a031d8e3d3e99c9c8d5a04820aabb83dec6495"
+    sha256 = "ece6a5c99d3d041c76e7fed1814eb9ea3a20a120bcb3c235a73d2c4e8db16ca1"
+    source = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/4.0.0-rc-5/apache-maven-4.0.0-rc-5-src.tar.gz"
+    source-sha256 = "a111c11d6c1f946f364a92c8d13d896306cab1b62ccc7205bb2bfd8ea8afe115"
     stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
-    uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/4.0.0-rc-4/apache-maven-4.0.0-rc-4-bin.tar.gz"
+    uri = "https://repo1.maven.org/maven2/org/apache/maven/apache-maven/4.0.0-rc-5/apache-maven-4.0.0-rc-5-bin.tar.gz"
     version = "4.0.0"
 
     [[metadata.dependencies.licenses]]
