@@ -1,6 +1,6 @@
 module github.com/paketo-buildpacks/maven/v6
 
-go 1.25.6
+go 1.26.0
 
 require (
 	github.com/buildpacks/libcnb v1.30.4
@@ -24,13 +24,13 @@ require (
 	github.com/mattn/go-shellwords v1.0.12 // indirect
 	github.com/mitchellh/hashstructure/v2 v2.0.2 // indirect
 	github.com/paketo-buildpacks/libjvm v1.46.0 // indirect
-	github.com/paketo-buildpacks/source-removal v1.0.11 // indirect
+	github.com/paketo-buildpacks/source-removal v1.0.14 // indirect
 	github.com/pavlo-v-chernykh/keystore-go/v4 v4.5.0 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.47.0 // indirect
-	golang.org/x/net v0.49.0 // indirect
-	golang.org/x/sys v0.40.0 // indirect
-	golang.org/x/text v0.33.0 // indirect
+	golang.org/x/crypto v0.48.0 // indirect
+	golang.org/x/net v0.50.0 // indirect
+	golang.org/x/sys v0.41.0 // indirect
+	golang.org/x/text v0.34.0 // indirect
 	software.sslmate.com/src/go-pkcs12 v0.7.0 // indirect
 )
