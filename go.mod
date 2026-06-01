@@ -21,11 +21,11 @@ require (
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/magiconair/properties v1.8.10 // indirect
-	github.com/mattn/go-colorable v0.1.14 // indirect
+	github.com/mattn/go-colorable v0.1.15 // indirect
 	github.com/mattn/go-shellwords v1.0.13 // indirect
 	github.com/mitchellh/hashstructure/v2 v2.0.2 // indirect
 	github.com/paketo-buildpacks/libjvm v1.46.0 // indirect
-	github.com/paketo-buildpacks/source-removal v1.0.26 // indirect
+	github.com/paketo-buildpacks/source-removal v1.0.27 // indirect
 	github.com/pavlo-v-chernykh/keystore-go/v4 v4.5.0 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
