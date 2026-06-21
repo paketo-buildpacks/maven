@@ -144,7 +144,7 @@ api = "0.7"
     cpes = ["cpe:2.3:a:apache:mvnd:1.0.6:*:*:*:*:*:*:*"]
     id = "mvnd"
     name = "Apache Maven Daemon"
-    purl = "pkg:generic/apache-mvnd@1.0.6"
+    purl = "pkg:generic/apache-mvnd@1.0.6?arch=amd64"
     sha256 = "1a1c2ad0de53669c6d2bf64e2b6bcc7cb96f592c543230f00b4209002b19083c"
     source = "https://github.com/apache/maven-mvnd/archive/refs/tags/1.0.6.tar.gz"
     source-sha256 = "c430af196511a680262dda91750071bbc2d01278fc603a574989fc337b94a894"
