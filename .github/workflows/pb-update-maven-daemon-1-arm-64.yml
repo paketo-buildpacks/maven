@@ -1,4 +1,4 @@
-name: Update Maven Daemon 0
+name: Update Maven Daemon 1 ARM64
 "on":
     schedule:
         - cron: 0 5 * * 1-5
@@ -27,10 +27,11 @@ jobs:
             - id: dependency
               uses: docker://ghcr.io/paketo-buildpacks/actions/github-release-dependency:main
               with:
-                glob: mvnd-.+-linux-amd64.zip
+                arch: arm64
+                glob: mvnd-.+-linux-aarch64.zip
                 owner: apache
                 repository: maven-mvnd
-                tag_filter: (^0\.[\d]+\.[\d])$
+                tag_filter: ^(1\.[\d]+\.[\d](?:-.*)?)$
                 token: ${{ secrets.PAKETO_BOT_GITHUB_TOKEN }}
             - name: Update Buildpack Dependency
               id: buildpack
@@ -78,7 +79,7 @@ jobs:
                 echo "new-version=${VERSION}" >> "$GITHUB_OUTPUT"
                 echo "version-label=${LABEL}" >> "$GITHUB_OUTPUT"
               env:
-                ARCH: ""
+                ARCH: arm64
                 CPE: ${{ steps.dependency.outputs.cpe }}
                 CPE_PATTERN: ""
                 ID: mvnd
@@ -89,18 +90,18 @@ jobs:
                 SOURCE_URI: ${{ steps.dependency.outputs.source }}
                 URI: ${{ steps.dependency.outputs.uri }}
                 VERSION: ${{ steps.dependency.outputs.version }}
-                VERSION_PATTERN: ^0\.[\d]+\.[\d]$
+                VERSION_PATTERN: ^1\.[\d]+\.[\d](?:-.*)?$
             - uses: peter-evans/create-pull-request@v8
               with:
                 author: ${{ secrets.JAVA_GITHUB_USERNAME }} <${{ secrets.JAVA_GITHUB_USERNAME }}@users.noreply.github.com>
-                body: Bumps `Maven Daemon 0` from `${{ steps.buildpack.outputs.old-version }}` to `${{ steps.buildpack.outputs.new-version }}`.
-                branch: update/buildpack/maven-daemon-0
+                body: Bumps `Maven Daemon 1 ARM64` from `${{ steps.buildpack.outputs.old-version }}` to `${{ steps.buildpack.outputs.new-version }}`.
+                branch: update/buildpack/maven-daemon-1-arm-64
                 commit-message: |-
-                    Bump Maven Daemon 0 from ${{ steps.buildpack.outputs.old-version }} to ${{ steps.buildpack.outputs.new-version }}
+                    Bump Maven Daemon 1 ARM64 from ${{ steps.buildpack.outputs.old-version }} to ${{ steps.buildpack.outputs.new-version }}
 
-                    Bumps Maven Daemon 0 from ${{ steps.buildpack.outputs.old-version }} to ${{ steps.buildpack.outputs.new-version }}.
+                    Bumps Maven Daemon 1 ARM64 from ${{ steps.buildpack.outputs.old-version }} to ${{ steps.buildpack.outputs.new-version }}.
                 delete-branch: true
                 labels: ${{ steps.buildpack.outputs.version-label }}, type:dependency-upgrade
                 signoff: true
-                title: Bump Maven Daemon 0 from ${{ steps.buildpack.outputs.old-version }} to ${{ steps.buildpack.outputs.new-version }}
+                title: Bump Maven Daemon 1 ARM64 from ${{ steps.buildpack.outputs.old-version }} to ${{ steps.buildpack.outputs.new-version }}
                 token: ${{ secrets.PAKETO_BOT_GITHUB_TOKEN }}

@@ -141,31 +141,31 @@ api = "0.7"
       uri = "https://www.apache.org/licenses/"
 
   [[metadata.dependencies]]
-    cpes = ["cpe:2.3:a:apache:mvnd:0.9.0:*:*:*:*:*:*:*"]
+    cpes = ["cpe:2.3:a:apache:mvnd:1.0.6:*:*:*:*:*:*:*"]
     id = "mvnd"
     name = "Apache Maven Daemon"
-    purl = "pkg:generic/apache-mvnd@0.9.0"
-    sha256 = "5d33a9a5964905381df1e132a1a4c0cc6e4b7c72f75daa2d799181b68091fe9f"
-    source = "https://github.com/apache/maven-mvnd/archive/refs/tags/0.9.0.tar.gz"
-    source-sha256 = "20435e39db7586ab740b3c90b8d209fc6483c67faef77452cea1f0b2b0b85d38"
+    purl = "pkg:generic/apache-mvnd@1.0.6"
+    sha256 = "1a1c2ad0de53669c6d2bf64e2b6bcc7cb96f592c543230f00b4209002b19083c"
+    source = "https://github.com/apache/maven-mvnd/archive/refs/tags/1.0.6.tar.gz"
+    source-sha256 = "c430af196511a680262dda91750071bbc2d01278fc603a574989fc337b94a894"
     stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
-    uri = "https://github.com/apache/maven-mvnd/releases/download/0.9.0/maven-mvnd-0.9.0-linux-amd64.zip"
-    version = "0.9.0"
+    uri = "https://github.com/apache/maven-mvnd/releases/download/1.0.6/maven-mvnd-1.0.6-linux-amd64.zip"
+    version = "1.0.6"
 
     [[metadata.dependencies.licenses]]
       type = "Apache-2.0"
       uri = "https://www.apache.org/licenses/"
 
   [[metadata.dependencies]]
-    cpes = ["cpe:2.3:a:apache:mvnd:1.0.2:*:*:*:*:*:*:*"]
+    cpes = ["cpe:2.3:a:apache:mvnd:1.0.6:*:*:*:*:*:*:*"]
     id = "mvnd"
     name = "Apache Maven Daemon"
-    purl = "pkg:generic/apache-mvnd@1.0.4"
-    sha256 = "1a1c2ad0de53669c6d2bf64e2b6bcc7cb96f592c543230f00b4209002b19083c"
+    purl = "pkg:generic/apache-mvnd@1.0.6?arch=arm64"
+    sha256 = "f23c319112f9f1ac50082eed2768f24551420fd2f31773045679de1e831588b7"
     source = "https://github.com/apache/maven-mvnd/archive/refs/tags/1.0.6.tar.gz"
     source-sha256 = "c430af196511a680262dda91750071bbc2d01278fc603a574989fc337b94a894"
     stacks = ["io.buildpacks.stacks.bionic", "io.paketo.stacks.tiny", "*"]
-    uri = "https://github.com/apache/maven-mvnd/releases/download/1.0.6/maven-mvnd-1.0.6-linux-amd64.zip"
+    uri = "https://github.com/apache/maven-mvnd/releases/download/1.0.6/maven-mvnd-1.0.6-linux-aarch64.zip"
     version = "1.0.6"
 
     [[metadata.dependencies.licenses]]
