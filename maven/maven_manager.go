@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 
 	"github.com/buildpacks/libcnb"
 	"github.com/paketo-buildpacks/libpak"
@@ -44,6 +45,10 @@ func (d DaemonMavenManager) ShouldInstall() bool {
 
 // Install the Maven daemon tool
 func (d DaemonMavenManager) Install() (string, libcnb.LayerContributor, *libcnb.BOMEntry, error) {
+	if runtime.GOARCH == "s390x" || runtime.GOARCH == "ppc64le" {
+		return "", nil, nil, fmt.Errorf("maven daemon (mvnd) is not supported on %s", runtime.GOARCH)
+	}
+
 	dep, err := d.depResolver.Resolve("mvnd", "")
 	if err != nil {
 		return "", nil, nil, fmt.Errorf("unable to find dependency\n%w", err)
