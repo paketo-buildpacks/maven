@@ -4,7 +4,7 @@ go 1.26.3
 
 require (
 	github.com/buildpacks/libcnb v1.30.4
-	github.com/mattn/go-isatty v0.0.22
+	github.com/mattn/go-isatty v0.0.23
 	github.com/onsi/gomega v1.42.1
 	github.com/paketo-buildpacks/libbs v1.18.1
 	github.com/paketo-buildpacks/libpak v1.73.0
