@@ -154,6 +154,47 @@ func testDetect(t *testing.T, context spec.G, it spec.S) {
 		}))
 	})
 
+	it("requires the jdk version from pom.xml (spring boot)", func() {
+		data, err := os.ReadFile(filepath.Join("testdata", "spring-boot-pom.xml"))
+		Expect(err).NotTo(HaveOccurred())
+		Expect(os.WriteFile(filepath.Join(ctx.Application.Path, "pom.xml"), data, 0644))
+
+		Expect(detect.Detect(ctx)).To(Equal(libcnb.DetectResult{
+			Pass: true,
+			Plans: []libcnb.BuildPlan{
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "jdk", Metadata: map[string]interface{}{"version": "17"}},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+						{Name: "maven"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
+						{Name: "jdk", Metadata: map[string]interface{}{"version": "17"}},
+						{Name: "maven"},
+					},
+				},
+				{
+					Provides: []libcnb.BuildPlanProvide{
+						{Name: "jvm-application-package"},
+					},
+					Requires: []libcnb.BuildPlanRequire{
+						{Name: "syft"},
+						{Name: "jdk", Metadata: map[string]interface{}{"version": "17"}},
+						{Name: "maven"},
+					},
+				},
+			},
+		}))
+	})
+
 	it("passes with a pom.xml at a custom location", func() {
 		Expect(os.WriteFile(filepath.Join(ctx.Application.Path, "pom2.xml"), []byte{}, 0644))
 

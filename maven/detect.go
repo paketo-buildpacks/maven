@@ -88,11 +88,18 @@ func (Detect) Detect(context libcnb.DetectContext) (libcnb.DetectResult, error) 
 			},
 		})
 
+		jdkRequire := libcnb.BuildPlanRequire{Name: PlanEntryJDK}
+		version, err := ParseJDKVersionFromPOM(file)
+		if err == nil && version != "" {
+			jdkRequire.Metadata = map[string]interface{}{"version": version}
+			result.Plans[0].Requires[0].Metadata = map[string]interface{}{"version": version}
+		}
+
 		// add requires for install & build
 		for i := 1; i < len(result.Plans); i++ {
 			result.Plans[i].Requires = []libcnb.BuildPlanRequire{
 				{Name: PlanEntrySyft},
-				{Name: PlanEntryJDK},
+				jdkRequire,
 				{Name: PlanEntryMaven},
 			}
 		}
